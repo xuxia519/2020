@@ -31,7 +31,7 @@ class Login extends Component {
   componentDidMount() {
     console.log(this.props)
     // this.props.dispatch(clearGformCache2({}))
-    this.props.form.setFieldsValue({ userName: 'xpz', password: '123' })
+    this.props.form.setFieldsValue({ userName: 'xx', password: '123' })
   }
 
   // #region 收缩业务代码功能

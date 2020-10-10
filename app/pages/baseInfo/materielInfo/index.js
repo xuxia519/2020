@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Spin, Button, Form, Input, message, Layout, Row, Col, Table, Icon, Select, Modal, Radio, DatePicker, Tag } from 'antd';
+import { Spin, Button, Form, Input, message, Layout, Row, Col, Table, Select, Modal, Radio, DatePicker, Tag } from 'antd';
 import moment from 'moment';
+import AddModal from './modal/addModal';
 
-import { fetchUserList, addUsers, editUsersInfo, fetchDepartments } from '@actions/system'
+import { fetchDeviceTypes, fetchDevice } from '@actions/pavo'
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -16,64 +17,158 @@ class materielInfo extends Component {
     super(props);
     this.state = {
       editModal: false,
-      userlist: [],
-      type: '',
+      deviceTypeList: [],
+      deviceList: [],
+      type: 1,
+      name: '',
+      code: '',
+      owner: '',
+      isCirculation: '',
       record: {},
-      departments: [],
-      name: '', 
-      code: '', 
-      phone: ''
+      handleType: 'add'
     };
   }
 
   renderColumn() {
-    return [
+    const { type } = this.state;
+    const column1 = [
       {
         title: "序号",
         width: '8%',
         render: (text, record, index) => `${index + 1}`
       },
       {
-        title: '用户编号',
+        title: '物料编号',
         dataIndex: 'code',
         key: 'code',
         width: '10%',
       },
       {
-        title: '用户名',
+        title: '物料简称',
+        dataIndex: 'abbreviation',
+        key: 'abbreviation',
+        width: '10%',
+      },
+      {
+        title: '物料全称',
         dataIndex: 'name',
         key: 'name',
         width: '10%',
       },
       {
-        title: '部门',
-        dataIndex: 'department',
-        key: 'department',
+        title: '颜色',
+        dataIndex: 'color',
+        key: 'color',
         width: '10%',
-        render: (text, record) => (
-          <div>
-            {
-              record.department.name
-            }
-          </div>
-        )
       },
       {
-        title: '职位',
-        dataIndex: 'position',
-        key: 'position',
+        title: '重量',
+        dataIndex: 'weight',
+        key: 'weight',
+        width: '10%',
+      },
+      {
+        title: '单位',
+        dataIndex: 'unit',
+        key: 'unit',
+        width: '10%',
+      },
+      {
+        title: '价格',
+        dataIndex: 'price',
+        key: 'price',
+        width: '10%',
+      },
+      {
+        title: '材质',
+        dataIndex: 'materialQuality',
+        key: 'materialQuality',
+        width: '10%',
+      },
+      {
+        title: '归属',
+        dataIndex: 'owner',
+        key: 'owner',
+        width: '10%',
+      },
+      {
+        title: '是否循环包装',
+        dataIndex: 'isCirculation',
+        key: 'isCirculation',
+        width: '10%',
+        render: (text, record) => (
+          <span>{record.isCirculation == 'true' ? '可循环' : '一次性'}</span>
+        )
+      },
+    ]
+    
+    const column2 = [
+      {
+        title: '外长',
+        dataIndex: 'foldLength',
+        key: 'foldLength',
         width: '10%'
       },
       {
-        title: '邮箱',
-        dataIndex: 'email',
-        key: 'email',
+        title: '外宽',
+        dataIndex: 'foldWidth',
+        key: 'foldWidth',
         width: '10%',
       },
       {
-        title: '电话',
-        dataIndex: 'phone',
-        key: 'phone',
+        title: '外高',
+        dataIndex: 'foldHeight',
+        key: 'foldHeight',
+        width: '10%',
+      },
+      {
+        title: '内长',
+        dataIndex: 'insideLength',
+        key: 'insideLength',
+        width: '10%'
+      },
+      {
+        title: '内宽',
+        dataIndex: 'insideWidth',
+        key: 'insideWidth',
+        width: '10%',
+      },
+      {
+        title: '内高',
+        dataIndex: 'insideHeight',
+        key: 'insideHeight',
+        width: '10%',
+      },
+      {
+        title: '箱子折叠长',
+        dataIndex: 'foldLength',
+        key: 'foldLength',
+        width: '10%'
+      },
+      {
+        title: '箱子折叠宽',
+        dataIndex: 'foldWidth',
+        key: 'foldWidth',
+        width: '10%',
+      },
+      {
+        title: '箱子折叠高',
+        dataIndex: 'foldHeight',
+        key: 'foldHeight',
+        width: '10%',
+      },
+      {
+        title: '套叠扣减高度',
+        dataIndex: 'deduct',
+        key: 'deduct',
+        width: '10%',
+      },
+    ]
+    const column3 = [
+      {
+        title: '备注',
+        dataIndex: '',
+        key: '',
         width: '10%',
       },
       {
@@ -86,7 +181,8 @@ class materielInfo extends Component {
           </span>
         }
       }
-    ];
+    ]
+    return column1.concat(column2,column3)
   }
 
   componentDidMount() {
@@ -94,346 +190,79 @@ class materielInfo extends Component {
     this.setState({
       loading: true
     })
-    this.getUser();
-    this.getDepartments();
+    this.fetchDeviceTypes();
+    this.fetchDevice();
   }
 
-  getUser = () => {
-    this.props.fetchUserList({pageNumber:'0', pageSize: '10'}).then(res=>{
+  fetchDevice = () => {
+    const { type } = this.state;
+    this.props.fetchDevice({type, pageNumber:'0', pageSize: '10'}).then(res=>{
       this.setState({
-        userlist: res.data.content,
+        deviceList: res.data.content,
         loading: false
       })
     });
   }
 
-  getDepartments = () => {
-    this.props.fetchDepartments().then(res=>{
-      this.setState({
-        departments: res.data
-      })
+  handleSearch = () => {
+    const { type } = this.state;
+    this.props.form.validateFields((errors, values) => {
+      if (errors) {
+        return;
+      }
+      console.log(values)
+      this.props.fetchDevice({...values, type, pageNumber:'0', pageSize: '10'}).then(res=>{
+        this.setState({
+          deviceList: res.data.content,
+          loading: false
+        })
+      });
     })
   }
 
-  handleSearch = (e) => {
-    e.preventDefault();
-    this.setState({
-      loading: true
-    })
-    const { name, code, phone } = this.state;
-    const values = {
-      name,
-      code,
-      phone
-    }
-    this.props.fetchUserList({values, pageNumber:'0', pageSize: '10'}).then(res=>{
+  fetchDeviceTypes = () => {
+    this.props.fetchDeviceTypes().then(res=>{
       this.setState({
-        userlist: res.data.content,
+        deviceTypeList: res.data,
         loading: false
       })
-    })
+    });
   }
 
   handleAdd = () => {
     this.setState({
       editModal: true,
-      type: 'add',
-      record: {}
+      handleType: 'add'
     })
   }
 
-  addUsers = () => {
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.addUsers({values}).then(res=>{
-          if (res.status == '201') {
-            message.success('新增成功');
-            this.setState({
-              editRoleModal: false
-            })
-            location.reload();
-          }
-        })
-      }
+  handleOk = () => {
+    this.setState({
+      editModal: false,
     })
   }
 
   handleEdit = (record) => {
     this.setState({
       editModal: true,
-      type: 'edit',
-      record
+      record,
+      handleType: 'edit'
     })
   }
 
-  onSelectChange = selectedRowKeys => {
-    this.setState({ selectedRowKeys });
-  }
-
-  handleOk = () => {
+  changeType = (val) => {
     this.setState({
-      editModal: false
+      type: val
     })
-  }
-
-  editUser = () => {
-    const { record } = this.state;
-    console.log(record)
-    this.props.form.validateFields((err, values) => {
-      if (!err) {
-        this.props.editUsersInfo({id: record.id, values}).then(res=>{
-          if (res.status == '200') {
-            message.success('修改成功');
-            this.setState({
-              editRoleModal: false
-            })
-            location.reload();
-          }
-        })
-      }
-    })
-  }
-
-  onChange = (date, dateString) => {
-    console.log(date, dateString);
-  }
-
-  changeCode = (e) => {
-    this.setState({
-      code: e.target.value
-    })
-  }
-
-  changeName = (e) => {
-    this.setState({
-      name: e.target.value
-    })
-  }
-
-  changePhone = (e) => {
-    this.setState({
-      phone: e.target.value
-    })
-  }
-
-  changeDepartment = (value) => {
-    console.log(value)
-  }
-
-  renderForm = () => {
-    const { getFieldDecorator } = this.props.form;
-    const { record, departments, type } = this.state;
-    const { birthday, code, email, name, phone, realName, sex, userTypeId, department = {}} = record;
-    const { id = '' } = department;
-    console.log(id)
-
-    return (
-      <div>
-        <Form style={{ width: '100%' }} onSubmit={type === 'add' ? this.addUsers : this.editUser}>
-          <Row>
-            <Col span={12}>
-              <FormItem label="用户编号">
-                {getFieldDecorator('code', {
-                      rules: [
-                      {
-                        required: true,
-                        message: "用户编号不能为空",
-                      },
-                    ],
-                    initialValue: code,
-                  })(<Input
-                  allowClear={true}
-                  className="input-base-width"
-                  size="default"
-                  placeholder="请输入"
-                />)}
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="用户类型">
-                {getFieldDecorator('userTypeId', {
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: userTypeId,
-                  })(
-                    <Select allowClear={true}>
-                      <Option value="1">携赁用户</Option>
-                      <Option value="2">客户</Option>
-                      <Option value="3">供应商</Option>
-                    </Select>
-                  )}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={12}>
-              <FormItem label="用户名">
-                {getFieldDecorator('name', {
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: name,
-                  })(<Input
-                  allowClear={true}
-                  className="input-base-width"
-                  size="default"
-                  placeholder="请输入"
-                />)}
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="邮箱">
-                {getFieldDecorator('email', {
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: email,
-                  })(<Input
-                  allowClear={true}
-                  className="input-base-width"
-                  size="default"
-                  placeholder="请输入"
-                />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={12}>
-              <FormItem label="部门">
-                {getFieldDecorator('departmentId', {
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: id,
-                  })(
-                  <Select style={{ width: '150px'}} value={id} placeholder="请选择" allowClear={true} onChange={this.changeDepartment}>
-                    {
-                      departments.map(item=>{
-                        return <Option key={item.id} value={item.id}>{item.name}</Option>
-                      })
-                    }
-                  </Select>
-                )}
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="电话">
-                {getFieldDecorator('phone', {
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: phone,
-                  },)(<Input
-                  allowClear={true}
-                  className="input-base-width"
-                  size="default"
-                  placeholder="请输入"
-                />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={12}>
-              <FormItem label="性别">
-                {getFieldDecorator('sex', {
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: sex,
-                  })(<Radio.Group onChange={this.onSexChange}>
-                    <Radio value='MALE'>男</Radio>
-                    <Radio value='FEMALE'>女</Radio>
-                  </Radio.Group>
-                )}
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="出生日">
-                {getFieldDecorator('birthday',{
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: moment(birthday),
-                  })(<DatePicker onChange={this.onChange} />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row>
-            <Col span={12}>
-              <FormItem label="密码">
-                {getFieldDecorator('password',{
-                      rules: [
-                      {
-                        required: true,
-                        message: "密码不能为空",
-                      },
-                    ],
-                    initialValue: "",
-                  })(<Input
-                  allowClear={true}
-                  className="input-base-width"
-                  size="default"
-                  placeholder="请输入"
-                />)}
-              </FormItem>
-            </Col>
-            <Col span={12}>
-              <FormItem label="真实姓名">
-                {getFieldDecorator('realName',{
-                      rules: [
-                      {
-                        required: false,
-                        message: "请输入",
-                      },
-                    ],
-                    initialValue: realName,
-                  })(<Input
-                  allowClear={true}
-                  className="input-base-width"
-                  size="default"
-                  placeholder="请输入"
-                />)}
-              </FormItem>
-            </Col>
-          </Row>
-          <Row style={{ textAlign:'center' }}>
-            <FormItem><Button size="small" type="primary" htmlType="submit">确定</Button>
-            <Button size="small" onClick={this.handleOk}>取消</Button></FormItem>
-          </Row>
-        </Form>
-      </div>
-    )
   }
 
   render() {
-    const { loading, selectedRowKeys, userlist, editModal, type } = this.state;
-    const rowSelection = {
-      selectedRowKeys,
-      onChange: this.onSelectChange,
+    const { loading, deviceList, editModal, type, deviceTypeList, record, handleType } = this.state;
+    const { getFieldDecorator } = this.props.form;
+    const formItemLayout = {
+      labelCol: { span: 9 },
+      wrapperCol: { span: 14 },
     };
-
     return (
       <div className="page page-scrollfix page-usermanage">
         <Layout>
@@ -442,36 +271,61 @@ class materielInfo extends Component {
               <div className="page-header">
                 <div className="layout-between">
                   <Form style={{ width: '100%' }} onSubmit={this.handleSearch}>
-                    <Row style={{ marginTop: '10px' }}>
-                      <Col span={8}>
-                        <label style={{ marginRight: '10px'}}>用户编号</label>
-                        <Input
-                          allowClear={true}
-                          className="input-base-width"
-                          size="default"
-                          placeholder="请输入"
-                          onChange={this.changeCode}
-                        />
+                    <Row style={{ marginTop: '10px', marginBottom: '10px' }}>
+                      <Col span={6}>
+                        <FormItem {...formItemLayout} label="物料编号">
+                          {getFieldDecorator('code', {
+                            rules: [{ required: false, message: '请输入' }],
+                            initialValue: '',
+                          })(<Input placeholder="请输入"  allowClear={true}/>)}
+                        </FormItem>
                       </Col>
-                      <Col span={8}>
-                        <label style={{ marginRight: '10px'}}>用户名</label>
-                        <Input
-                          allowClear={true}
-                          className="input-base-width"
-                          size="default"
-                          placeholder="请输入"
-                          onChange={this.changeName}
-                        />
+                      <Col span={6}>
+                        <FormItem {...formItemLayout} label="物料归属">
+                          {getFieldDecorator('owner', {
+                            rules: [{ required: false, message: '请输入' }],
+                            initialValue: '',
+                          })(<Input placeholder="请输入"  allowClear={true}/>)}
+                        </FormItem>
                       </Col>
-                      <Col span={8}>
-                        <label style={{ marginRight: '10px'}}>电话</label>
-                        <Input
-                          allowClear={true}
-                          className="input-base-width"
-                          size="default"
-                          placeholder="请输入"
-                          onChange={this.changePhone}
-                        />
+                      <Col span={6}>
+                        <FormItem {...formItemLayout} label="物料名称">
+                          {getFieldDecorator('name', {
+                            rules: [{ required: false, message: '请输入' }],
+                            initialValue: '',
+                          })(<Input placeholder="请输入" allowClear={true}/>)}
+                        </FormItem>
+                      </Col>
+                      <Col span={6}>
+                        <FormItem {...formItemLayout} label="物料类型">
+                          {getFieldDecorator('type', {
+                            rules: [{ required: false, message: '请输入' }],
+                            initialValue: 1,
+                          })(
+                            <Select style={{ width: '150px'}} placeholder="请选择" allowClear={true} defaultValue={type} onChange={this.changeType}>
+                              {
+                                deviceTypeList.map(item=>{
+                                  return <Option key={item.id} value={item.id}>{item.name}</Option>
+                                })
+                              }
+                            </Select>
+                          )}
+                        </FormItem>
+                      </Col>
+                    </Row>
+                    <Row>
+                      <Col span={6}>
+                        <FormItem {...formItemLayout} label="是否循环">
+                          {getFieldDecorator('isCirculation', {
+                            rules: [{ required: false, message: '请输入' }],
+                            initialValue: '',
+                          })(
+                            <Select style={{ width: '150px'}} placeholder="请选择" allowClear={true}>
+                              <Option key={1} value={true}>可循环</Option>
+                              <Option key={2} value={false}>一次性</Option>
+                            </Select>
+                          )}
+                        </FormItem>
                       </Col>
                     </Row>
                     <Row style={{ marginTop: '10px', marginBottom: '10px' }}>
@@ -481,28 +335,22 @@ class materielInfo extends Component {
                   </Form>
                 </div>
               </div>
-              {/* <Row><Col span={1}><Button size="small">导出</Button></Col></Row> */}
               <div className="page-content table-flex table-scrollfix">
                 <Table
                   bordered
                   rowKey="id"
                   columns={this.renderColumn()}
-                  // rowSelection={rowSelection}
-                  dataSource={userlist}
+                  dataSource={deviceList}
                 />
               </div>
             </Content>
-            <Modal
-              title={type === 'add' ? '新增用户' : '修改用户'}
-              width={600}
+            <AddModal 
               visible={editModal}
-              onOk={this.handleEdit}
               onCancel={this.handleOk}
-              className="userInfoModal"
-              footer={null}
-            >
-              {this.renderForm()}
-            </Modal>
+              deviceTypeList={deviceTypeList}
+              record={record}
+              handleType={handleType}
+            />
           </Layout>
         </Layout>
       </div>
@@ -510,4 +358,4 @@ class materielInfo extends Component {
   }
 }
 
-export default connect((state) => state.system, { fetchUserList, addUsers, editUsersInfo, fetchDepartments })(materielInfo)
+export default connect((state) => state.system, { fetchDeviceTypes, fetchDevice })(materielInfo)

@@ -8,13 +8,6 @@ export function fetchWarehouses(data) {
   })
 }
 
-export function fetchUser() {
-  return request({
-    url: '/orion/users/admin/list',
-    method: 'get'
-  })
-}
-
 // 省
 export function fetchProvince(data) {
   return request({
@@ -41,113 +34,40 @@ export function deleteWarehouse(id) {
   })
 }
 
-// 客户信息
-// 分页查询客户
-export function fetchCustomer(data) {
+// 查询设备类型
+export function fetchDeviceType() {
   return request({
-    url: '/apus/customers/page',
+    url: '/pavo/device-types/list',
     method: 'get',
-    params: {...data}
   })
 }
-//查询所有客户
-export function fetchAllCustomer() {
+//添加设备
+export function addDevices(data) {
+  const { id } = data;
+  delete data.id;
   return request({
-    url: '/apus/customers/list',
-    method: 'get'
-  })
-}
-// 新增
-export function addCustomer(data) {
-  return request({
-    url: '/apus/customers',
+    url: `/pavo/devices/${id}`,
     method: 'post',
     data
   })
 }
-// 修改
-export function editCustomer(data) {
+// 查询设备(page)
+export function fetchDevices(data) {
+  const { type } = data;
+  delete data.type;
   return request({
-    url: `/apus/customers/${data.id}`,
-    method: 'put',
-    data
-  })
-}
-//查询客户的物料
-export function fetchCpns(id) {
-  return request({
-    url: `/apus/cpns/${id}`,
-    method: 'get',
-  })
-}
-//分页查询物料
-export function fetchCpns2(data) {
-  return request({
-    url: `/apus/cpns/page`,
+    url: `/pavo/devices/${type}/page`,
     method: 'get',
     params: {...data}
   })
 }
-//新增物料
-export function addCpns(data) {
+// 修改设备
+export function editDevices(data) {
+  const { id } = data;
+  delete data.id;
   return request({
-    url: '/apus/cpns',
-    method: 'post',
-    data
-  })
-}
-//修改物料
-export function editCpns(data) {
-  return request({
-    url: `/apus/cpns/${data.id}`,
+    url: `/pavo/devices/${id}`,
     method: 'put',
     data
-  })
-}
-//删除物料
-export function deleteCpns(id) {
-  return request({
-    url: `/apus/cpns/${id}`,
-    method: 'delete',
-  })
-}
-
-// 供应商
-//查询
-export function fetchVendor(data) {
-  return request({
-    url: `/apus/vendors/page`,
-    method: 'get',
-    params: {...data}
-  })
-}
-//查询所有供应商
-export function fetchAllVendor() {
-  return request({
-    url: `/apus/vendors/list`,
-    method: 'get',
-  })
-}
-// 新增供应商
-export function addVendor(data) {
-  return request({
-    url: '/apus/vendors',
-    method: 'post',
-    data
-  })
-}
-// 更新供应商
-export function editVendor(data) {
-  return request({
-    url: `/apus/vendors/${data.id}`,
-    method: 'put',
-    data
-  })
-}
-// 删除供应商
-export function deleteVendor(id) {
-  return request({
-    url: `/apus/vendors/${id}`,
-    method: 'delete',
   })
 }

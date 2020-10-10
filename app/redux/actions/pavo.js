@@ -1,5 +1,5 @@
 import * as types from "../action-types";
-import { fetchWarehouses, fetchUser, fetchProvince, addWarehouses, deleteWarehouse, fetchCustomer, addCustomer, fetchAllCustomer, editCustomer, addCpns, fetchCpns, fetchCpns2, editCpns, deleteCpns, fetchVendor, fetchAllVendor, addVendor, deleteVendor, editVendor } from '@apis/baseInfo';
+import { fetchWarehouses, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices } from '@apis/pavo';
 import { resolve, reject } from "core-js/fn/promise";
 
 export const fetchWarehouse = (params) => (dispatch) => {
@@ -13,17 +13,6 @@ export const fetchWarehouse = (params) => (dispatch) => {
       });
   });
 };
-
-export const fetchUsers = () => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    fetchUser().then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
 
 // 省
 export const fetchProvinces = (params) => (dispatch) => {
@@ -61,11 +50,22 @@ export const deleteWarehouses = (params) => (dispatch) => {
   })
 }
 
-// 客户信息
-export const fetchCustomers = (params) => (dispatch) => {
-  const { values, pageNumber, pageSize } = params;
+// 查询物料类型
+export const fetchDeviceTypes = () => (dispatch) => {
   return new Promise((resolve, reject) => {
-    fetchCustomer({...values, pageNumber, pageSize}).then((response) => {
+    fetchDeviceType()
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
+//添加设备
+export const addDevice = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    addDevices({...params}).then((response) => {
       resolve(response);
     })
     .catch((error) => {
@@ -73,10 +73,10 @@ export const fetchCustomers = (params) => (dispatch) => {
     });
   })
 }
-//所有客户
-export const fetchAllCustomers = () => (dispatch) => {
+//查询设备
+export const fetchDevice = (params) => (dispatch) => {
   return new Promise((resolve, reject) => {
-    fetchAllCustomer().then((response) => {
+    fetchDevices({...params}).then((response) => {
       resolve(response);
     })
     .catch((error) => {
@@ -84,136 +84,10 @@ export const fetchAllCustomers = () => (dispatch) => {
     });
   })
 }
-
-// 新增客户
-export const addCustomers = (params) => (dispatch) => {
+//修改设备
+export const editDevice = (params) => (dispatch) => {
   return new Promise((resolve, reject) => {
-    addCustomer({...params}).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-
-// 修改客户信息
-export const editCustomers = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    editCustomer(params).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-//查询物料
-export const fetchCpnsById = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    fetchCpns(params).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-//分页查询物料
-export const fetchCpnsByPage = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    fetchCpns2({...params}).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-//新增物料
-export const addCpn = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    addCpns(params).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-//修改物料
-export const editCpnsById = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    editCpns(params).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-//删除物料
-export const deleteCpnsById = (params) => (dispatch) => {
-  console.log(params)
-  return new Promise((resolve, reject) => {
-    deleteCpns(params).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-
-// 供应商
-// 查询
-export const fetchVendors = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    fetchVendor({...params}).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-// 查询所有
-export const fetchAllVendors = () => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    fetchAllVendor().then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-//新增供应商
-export const addVendors = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    addVendor(params).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-//修改供应商
-export const editVendors = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    editVendor(params).then((response) => {
-      resolve(response);
-    })
-    .catch((error) => {
-      reject(error);
-    });
-  })
-}
-// 删除供应商
-export const deleteVendors = (params) => (dispatch) => {
-  return new Promise((resolve, reject) => {
-    deleteVendor(params).then((response) => {
+    editDevices({...params}).then((response) => {
       resolve(response);
     })
     .catch((error) => {
