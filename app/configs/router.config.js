@@ -35,6 +35,7 @@ export default () => (
       <Route path={`/materielInfo`} component={baseInfo.materielInfo} />
       <Route path={`/warehouseInfo`} component={baseInfo.warehouseInfo} />
       <Route path={`/userInfo`} component={baseInfo.userInfo} />
+      <Route path={`/BOMInfo`} component={baseInfo.BOMInfo} />
       {/** *基本信息 结束 */}
     </Route>
     {/* <Route path="/desk$/index" component={base.example} /> */}

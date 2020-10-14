@@ -6,5 +6,6 @@ import vendorInfo from './vendorInfo'
 import materielInfo from './materielInfo'
 import warehouseInfo from './warehouseInfo'
 import userInfo from './userInfo'
+import BOMInfo from './userInfo'
 
-export { customerInfo, vendorInfo, materielInfo, warehouseInfo, userInfo, dtoDetail }
+export { customerInfo, vendorInfo, materielInfo, warehouseInfo, userInfo, dtoDetail, BOMInfo }

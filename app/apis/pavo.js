@@ -1,4 +1,5 @@
 import request from '@utils/request'
+import bom from '../pages/baseInfo/bom'
 
 export function fetchWarehouses(data) {
   return request({
@@ -71,3 +72,18 @@ export function editDevices(data) {
     data
   })
 }
+// 删除设备
+export function deleteDevice(id) {
+  return request({
+    url: `/pavo/devices/${id}`,
+    method: 'delete'
+  })
+}
+//BOM
+export function fetchBOM() {
+  return request({
+    url: `/pavo/devices/6/list`,
+    method: 'get',
+  })
+}
+

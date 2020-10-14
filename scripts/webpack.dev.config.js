@@ -9,9 +9,9 @@ const os = require('os')
 let selfIp
 try {
   // selfIp = os.networkInterfaces()['WLAN'][1].address
-  selfIp = '172.16.1.234'
+  selfIp = '172.16.1.161'
 } catch (e) {
-  selfIp = '172.16.1.234'
+  selfIp = '172.16.1.161'
 }
 
 const PORT = 8888

@@ -43,65 +43,51 @@ class warehouseInfo extends Component {
       },
       {
         title: '节点类型',
-        dataIndex: 'warehouseAreas',
-        key: 'warehouseAreas',
-        render: (text, record, index) => {
+        dataIndex: 'type',
+        key: 'type',
+        render: (text, record) => {
+          const type = {
+            'OWNER':'携赁仓库',
+            'OWNER_ASSIST':'携赁外协仓库',
+            'CUSTOMER_START':'客户始发端仓库',
+            'CUSTOMER_RECOVERY':'客户回收端仓库',
+            'VIRTUAL':'虚拟仓库',
+            'OTHER':'其他'
+          }
           return (
-            <div>
-              {
-                record.warehouseAreas.map(item=>{
-                  return <Tag color="processing" key={item.code}>{item.name}</Tag>
-                })
-              }
-            </div>
+            <span>{type[record.type]}</span>
           )
         }
       },
       {
         title: '节点地址',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'districtDetail',
+        key: 'districtDetail',
       },
       {
-        title: '所属主体',
-        dataIndex: 'name',
-        key: 'name',
-      },
-      {
-        title: '所属备注',
-        dataIndex: 'name',
-        key: 'name',
-      },
-      {
-        title: '自动发货',
-        dataIndex: 'name',
-        key: 'name',
-      },
-      {
-        title: '自动收货',
-        dataIndex: 'name',
-        key: 'name',
+        title: '节点备注',
+        dataIndex: 'remark',
+        key: 'remark',
       },
       {
         title: '联系人',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'head',
+        key: 'head',
       },
       {
         title: '联系电话',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'phone',
+        key: 'phone',
       },
       {
         title: '电子邮箱',
-        dataIndex: 'remark',
-        key: 'remark',
+        dataIndex: 'email',
+        key: 'email',
         width: 100,
       },
       {
         title: '操作',
         key: 'operate',
-        fixed: 'right',
         render: (text, record, index) => {
           return (
             <div>
@@ -216,7 +202,7 @@ class warehouseInfo extends Component {
 
   render() {
     const { pagination } = this.state;
-    const { loading, warehouseList, visible, userList } = this.state;
+    const { loading, warehouseList, visible, record } = this.state;
     const { getFieldDecorator } = this.props.form;
 
     return (
@@ -242,6 +228,19 @@ class warehouseInfo extends Component {
                         </FormItem>
                       </Col>
                       <Col span={6}>
+                        <FormItem label="节点名称">
+                          {getFieldDecorator('name', {
+                            initialValue: '',
+                            rules: [{ required: false, message: '请输入' }],
+                          })(<Input
+                            allowClear={true}
+                            className="input-base-width"
+                            size="default"
+                            placeholder="请输入"
+                          />)}
+                        </FormItem>
+                      </Col>
+                      <Col span={6}>
                         <FormItem label="节点类型">
                           {getFieldDecorator('type', {
                             rules: [{ required: false, message: '请选择' }],
@@ -253,19 +252,6 @@ class warehouseInfo extends Component {
                             <Option value="CUSTOMER_RECOVERY">客户回收端仓库</Option>
                             <Option value="VIRTUAL">虚拟仓库</Option>
                           </Select>)}
-                        </FormItem>
-                      </Col>
-                      <Col span={6}>
-                        <FormItem label="节点名称">
-                          {getFieldDecorator('name', {
-                            initialValue: '',
-                            rules: [{ required: false, message: '请输入' }],
-                          })(<Input
-                            allowClear={true}
-                            className="input-base-width"
-                            size="default"
-                            placeholder="请输入"
-                          />)}
                         </FormItem>
                       </Col>
                       <Col span={6}><Button size="small" onClick={this.handleSearch}>查询</Button></Col>
@@ -284,14 +270,13 @@ class warehouseInfo extends Component {
                   dataSource={warehouseList}
                   pagination={{...pagination, showSizeChanger: true}}
                   onChange={this.handleTableChange}
-                  scroll={{ x: 1200 }}
                 />
               </div>
             </Content>
             <AddWarehouse
               visible={visible}
               onCancel={this.onCancel}
-              userList={userList}
+              record={record}
             />
           </Layout>
         </Layout>

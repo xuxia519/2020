@@ -48,6 +48,10 @@ const menuList = [
       {
         resName: "用户信息",
         resKey: "userInfo",
+      },
+      {
+        resName: "BOM管理",
+        resKey: "BOMInfo",
       }
     ],
   },

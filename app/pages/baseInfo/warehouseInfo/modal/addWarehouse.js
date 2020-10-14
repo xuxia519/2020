@@ -6,7 +6,8 @@ import { fetchProvinces, addWarehous } from '@actions/baseInfo';
 
 
 const FormItem = Form.Item
-const { Option } = Select
+const { Option } = Select;
+const { TextArea } = Input;
 
 @Form.create({})
 class addWarehouse extends Component {
@@ -39,7 +40,6 @@ class addWarehouse extends Component {
   handleSubmit(e) {
     e.preventDefault()
     this.props.form.validateFields((errors, values) => {
-      console.log(values)
       if (errors) {
         return;
       }
@@ -96,9 +96,9 @@ class addWarehouse extends Component {
   }
 
   render() {
-    const { visible, onCancel, userList = [] } = this.props;
+    const { visible, onCancel, record = {} } = this.props;
+    const { code, name, type, contact, phone, email, remark, districtDetail } = record;
     const { provinces, cities, areas } = this.state;
-    console.log(userList)
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 8 },
@@ -118,24 +118,18 @@ class addWarehouse extends Component {
               <Col span={12}>
                 <FormItem {...formItemLayout} label="节点编号">
                   {getFieldDecorator('code', {
-                    initialValue: '',
+                    initialValue: code,
                     rules: [{ required: false, message: '请输入' }],
                   })(<Input allowClear={true} placeholder="请输入" />)}
                 </FormItem>
               </Col>
               <Col span={12}>
                 <FormItem {...formItemLayout} label="节点名称">
-                  {getFieldDecorator('head', {
-                    // initialValue: '',
+                  {getFieldDecorator('name', {
+                    initialValue: name,
                     rules: [{ required: false, message: '请输入' }],
                   })(
-                    <Select allowClear={true} placeholder="请选择" defaultValue="">
-                      {
-                        userList.map(item=>{
-                          return <Option key={item.id}>{item.realName}</Option>
-                        })
-                      }
-                    </Select>
+                    <Input placeholder="请输入" />
                   )}
                 </FormItem>
               </Col>
@@ -143,13 +137,23 @@ class addWarehouse extends Component {
             <Row>
               <Col span={12}>
                 <FormItem {...formItemLayout} label="节点类型">
-                  {getFieldDecorator('name', {
-                    initialValue: '',
+                  {getFieldDecorator('type', {
+                    initialValue: type,
                     rules: [{ required: false, message: '请输入' }],
-                  })(<Input allowClear={true} placeholder="请输入" />)}
+                  })(
+                    <Select placeholder="请选择" style={{ width: '130px' }} allowClear={true}>
+                      <Option value="OWNER">携赁仓库</Option>
+                      <Option value="OWNER_ASSIST">携赁外协仓库</Option>
+                      <Option value="CUSTOMER_START">客户始发端仓库</Option>
+                      <Option value="CUSTOMER_RECOVERY">客户回收端仓库</Option>
+                      <Option value="VIRTUAL">虚拟仓库</Option>
+                    </Select>
+                  )}
                 </FormItem>
-              </Col>
-              <Col span={20}>
+              </Col>       
+            </Row>
+            <Row>
+              <Col span={9}>
                 <FormItem label="仓库地址" className="province">
                   {getFieldDecorator('province', {
                     initialValue: '',
@@ -167,6 +171,8 @@ class addWarehouse extends Component {
                     </Select>
                   )}
                 </FormItem>
+              </Col>
+              <Col span={7}>
                 <FormItem className="city">
                   {getFieldDecorator('city', {
                     initialValue: '',
@@ -184,6 +190,8 @@ class addWarehouse extends Component {
                     </Select>
                   )}
                 </FormItem>
+              </Col>
+              <Col span={7}>
                 <FormItem className="district">
                   {getFieldDecorator('districtId', {
                       initialValue: '',
@@ -205,26 +213,58 @@ class addWarehouse extends Component {
             </Row>
             <Row>
               <Col span={12}>
-                <FormItem {...formItemLayout} label="所属主体">
-                  {getFieldDecorator('phone', {
-                    initialValue: '',
+                <FormItem {...formItemLayout}>
+                  {getFieldDecorator('districtDetail', {
+                    initialValue: districtDetail,
                     rules: [{ required: false, message: '请输入' }],
-                  })(<Input allowClear={true} placeholder="请输入" />)}
+                  })(
+                    <Input placeholder="请输入" />
+                  )}
+                </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="联系人">
+                  {getFieldDecorator('contact', {
+                    initialValue: contact,
+                    rules: [{ required: false, message: '请输入' }],
+                  })(
+                    <Input placeholder="请输入" />
+                  )}
                 </FormItem>
               </Col>
               <Col span={12}>
-                <FormItem {...formItemLayout} label="仓库类型">
-                  {getFieldDecorator('type', {
-                    // initialValue: '',
-                    rules: [{ required: false, message: '请选择' }],
+                <FormItem {...formItemLayout} label="联系电话">
+                  {getFieldDecorator('phone', {
+                    initialValue: phone,
+                    rules: [{ required: false, message: '请输入' }],
                   })(
-                    <Select placeholder="请选择" style={{ width: '180px' }} allowClear={true}>
-                      <Option value="OWNER">携赁仓库</Option>
-                      <Option value="OWNER_ASSIST">携赁外协仓库</Option>
-                      <Option value="CUSTOMER_START">客户始发端仓库</Option>
-                      <Option value="CUSTOMER_RECOVERY">客户回收端仓库</Option>
-                      <Option value="VIRTUAL">虚拟仓库</Option>
-                    </Select>
+                    <Input placeholder="请输入" />
+                  )}
+                </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="电子邮箱">
+                  {getFieldDecorator('email', {
+                    initialValue: email,
+                    rules: [{ required: false, message: '请输入' }],
+                  })(
+                    <Input placeholder="请输入" />
+                  )}
+                </FormItem>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <FormItem {...formItemLayout} label="备注">
+                  {getFieldDecorator('remark', {
+                    initialValue: remark,
+                    rules: [{ required: false, message: '请输入' }],
+                  })(
+                    <TextArea />
                   )}
                 </FormItem>
               </Col>

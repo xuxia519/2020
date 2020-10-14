@@ -6,7 +6,7 @@ import { Modal } from "antd";
 
 //创建一个axios示例
 const service = axios.create({
-  baseURL: 'http://172.16.1.221:9102/', // api 的 base_url
+  baseURL: 'http://172.16.1.38:9102/', // api 的 base_url
   timeout: 5000, // request timeout
 });
 

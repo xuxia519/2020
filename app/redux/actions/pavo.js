@@ -1,5 +1,5 @@
 import * as types from "../action-types";
-import { fetchWarehouses, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices } from '@apis/pavo';
+import { fetchWarehouses, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices, deleteDevice, fetchBOM } from '@apis/pavo';
 import { resolve, reject } from "core-js/fn/promise";
 
 export const fetchWarehouse = (params) => (dispatch) => {
@@ -88,6 +88,29 @@ export const fetchDevice = (params) => (dispatch) => {
 export const editDevice = (params) => (dispatch) => {
   return new Promise((resolve, reject) => {
     editDevices({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+
+// 删除设备
+export const deleteDevices = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    deleteDevice(params).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// BOM
+export const fetchBOMS = () => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchBOM().then((response) => {
       resolve(response);
     })
     .catch((error) => {
