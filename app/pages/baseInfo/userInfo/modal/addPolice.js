@@ -22,9 +22,8 @@ export default class Index extends Component {
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
-  // 组件已经加载到dom中
   componentDidMount() {
-    this.props.form.resetFields()
+    // this.props.form.resetFields()
   }
 
 

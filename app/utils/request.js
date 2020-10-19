@@ -1,6 +1,7 @@
 import axios from "axios";
 import store from "@store";
 import { Modal } from "antd";
+import { hashHistory } from 'react-router'
 // import { getToken } from "@/utils/auth";
 // import { logout } from "@/store/actions";
 
@@ -29,16 +30,14 @@ service.interceptors.request.use(
 
 // 响应拦截器
 service.interceptors.response.use(
-  (response) => response,
-  /**
-   * 下面的注释为通过在response里，自定义code来标示请求状态
-   * 当code返回如下情况则说明权限有问题，登出并返回到登录页
-   * 如想通过 xmlhttprequest 来状态码标识 逻辑可写在下面error中
-   * 以下代码均为样例，请结合自生需求加以修改，若不需要，则可删除
-   */
-  response => {
-    // const res = response
+  (response) => {
+    const res = response
     console.log('response',response)
+    if (res.status !== 200) {
+      if (res.status == 401) {
+        console.log(111)
+      }
+    }
     return response;
     // if (res.code !== 20000) {
     //   Message({
@@ -56,7 +55,7 @@ service.interceptors.response.use(
     //       type: 'warning'
     //     }).then(() => {
     //       store.dispatch('FedLogOut').then(() => {
-    //         location.reload() // 为了重新实例化vue-router对象 避免bug
+    //         location.reload() // 
     //       })
     //     })
     //   }
@@ -78,6 +77,8 @@ service.interceptors.response.use(
         onOk() {
           // let token = store.getState().user.token;
           // store.dispatch(logout(token));
+          sessionStorage.clear()
+          hashHistory.replace('/login')
         },
         onCancel() {
           console.log("Cancel");

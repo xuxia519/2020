@@ -1,5 +1,4 @@
 import request from '@utils/request'
-import bom from '../pages/baseInfo/bom'
 
 export function fetchWarehouses(data) {
   return request({
@@ -80,10 +79,34 @@ export function deleteDevice(id) {
   })
 }
 //BOM
-export function fetchBOM() {
+export function fetchBOM(data) {
   return request({
-    url: `/pavo/devices/6/list`,
+    url: `/pavo/devices/6/page`,
+    method: 'get',
+    params: {...data}
+  })
+}
+//
+export function fetchDevicesByCode(code) {
+  return request({
+    url: `/pavo/devices/${code}/code-list`,
     method: 'get',
   })
 }
+// 添加bom
+export function addBOM(data) {
+  return request({
+    url: `/pavo/devices/6`,
+    method: 'post',
+    data
+  })
+}
 
+// 添加库区
+export function addWarehouseAreas(data) {
+  return request({
+    url: `/pavo/warehouse-areas`,
+    method: 'post',
+    data
+  })
+}

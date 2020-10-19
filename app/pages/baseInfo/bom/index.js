@@ -35,8 +35,8 @@ class BOM extends Component {
       },
       {
         title: 'BOM描述',
-        dataIndex: 'abbreviation',
-        key: 'abbreviation',
+        dataIndex: 'text',
+        key: 'text',
         width: '10%',
       },
       {
@@ -51,8 +51,7 @@ class BOM extends Component {
         width: '20%',
         render: (text, record) => {
           return <span>
-            <a onClick={() => this.handleEdit(record)}>修改</a>|
-            <a onClick={() => this.handleDelete(record)}>删除</a>
+            {/* <a onClick={() => this.handleDelete(record)}>删除</a> */}
           </span>
         }
       }
@@ -69,7 +68,7 @@ class BOM extends Component {
   }
 
   fetchBOM = () => {
-    this.props.fetchBOMS().then(res=>{
+    this.props.fetchBOMS({pageNumber:'0', pageSize: '10'}).then(res=>{
       this.setState({
         BOMList: res.data.content,
         loading: false
@@ -84,14 +83,16 @@ class BOM extends Component {
       if (errors) {
         return;
       }
-      this.props.fetchBOM({...values, type, pageNumber:'0', pageSize: '10'}).then(res=>{
+      this.props.fetchBOMS({...values, type, pageNumber:'0', pageSize: '10'}).then(res=>{
         this.setState({
-          deviceList: res.data.content,
+          BOMList: res.data.content,
           loading: false
         })
       });
     })
   }
+
+  
 
   handleAdd = () => {
     this.setState({
@@ -137,6 +138,28 @@ class BOM extends Component {
     })
   }
 
+  expandedRowRender = (record) => {
+    console.log(record,1111)
+    const columns = [
+      { title: '编号', dataIndex: 'code', key: 'code', render: (text, record) => {
+        return <span>
+          {record.device.code}
+        </span>
+      } },
+      { title: '名称', dataIndex: 'name', key: 'name', render: (text, record) => {
+        return <span>
+          {record.device.deviceType.name}
+        </span>
+      } },
+      { title: '数量', dataIndex: 'number', key: 'number', render: (text, record) => {
+        return <span>
+          {record.number}
+        </span>
+      } },
+    ];
+    return <Table columns={columns} dataSource={record.baleDevices} pagination={false} />;
+  };
+
   render() {
     const { loading, BOMList, editModal, record, handleType } = this.state;
     const { getFieldDecorator } = this.props.form;
@@ -144,6 +167,7 @@ class BOM extends Component {
       labelCol: { span: 9 },
       wrapperCol: { span: 14 },
     };
+    
     return (
       <div className="page page-scrollfix page-usermanage">
         <Layout>
@@ -179,10 +203,12 @@ class BOM extends Component {
               </div>
               <div className="page-content table-flex table-scrollfix">
                 <Table
+                  className="components-table-demo-nested"
                   bordered
                   rowKey="id"
                   columns={this.renderColumn()}
                   dataSource={BOMList}
+                  expandedRowRender={this.expandedRowRender}
                 />
               </div>
             </Content>

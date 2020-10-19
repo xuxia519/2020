@@ -11,11 +11,6 @@ import {
 
 const FormItem = Form.Item
 
-// 连接公用常量、后端返回的数据方法  并放置在props里面调用
-// @connect((state, props) => ({
-//   config: state.config,
-// }))
-
 @Form.create({})
 
 export default class Index extends Component {
@@ -27,7 +22,6 @@ export default class Index extends Component {
     }
   }
 
-  // 组件已经加载到dom中
   componentDidMount() {
     this.props.form.resetFields()
   }
@@ -146,20 +140,6 @@ export default class Index extends Component {
                 initialValue: `${this.props.values.resIcon || ''}`,
               })(<Input placeholder="请输入图标名称" />)}
             </FormItem>
-            {/* <FormItem {...formItemLayout} label="类型" hasFeedback>
-              {getFieldDecorator('resType', {
-                rules: [
-                  { required: true, message: '请选择类型' },
-                ],
-                initialValue: `${this.props.values.resType || ''}`,
-              })(
-                <Select placeholder="请选择类型" size="large">
-                  <Option value="1">菜单</Option>
-                  <Option value="2">操作地址</Option>
-                  <Option value="3">页面按钮</Option>
-                </Select>
-              )}
-            </FormItem> */}
           </Form>
         </div>
       </Drawer>

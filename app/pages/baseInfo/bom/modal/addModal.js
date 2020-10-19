@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
-import { Button, Form, Input, Modal, message, Row, Col, Select, Radio } from 'antd';
+import { Button, Form, Input, Modal, message, Row, Col, Select, Table, AutoComplete } from 'antd';
 import { connect } from 'react-redux';
-import { addDevice, editDevice } from '@actions/pavo';
+import { fetchDevicesByCodes, addBOMS } from '@actions/pavo';
 
 const FormItem = Form.Item;
 const { TextArea } = Input;
@@ -13,13 +13,48 @@ class addDtoModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      deviceTypeId: 1
+      list: [],
+      number: '',
+      deviceId:'',
+      code: '',
+      options: []
     };
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.columns = [
+      {
+        title: 'id',
+        dataIndex: 'deviceId',
+        key: 'deviceId',
+        width: '10%',
+      },
+      {
+        title: '编号',
+        dataIndex: 'code',
+        key: 'code',
+        width: '10%',
+      },
+      {
+        title: '数量',
+        dataIndex: 'number',
+        key: 'number',
+        width: '10%',
+      },
+      {
+        title: '操作',
+        key: 'operate',
+        width: '10%',
+        render: (text, record) => {
+          return <span>
+            <a onClick={()=>this.handleDelete(record)}>删除</a>
+          </span>
+        }
+      }
+    ]
   }
 
   componentDidMount() {
-    this.props.form.setFieldsValue({code: '', aliasCode: '', name: '', remark:''});
+    this.props.form.setFieldsValue({ key: '' });
+    
   }
 
   handleSubmit(e) {
@@ -28,41 +63,26 @@ class addDtoModal extends Component {
       if (errors) {
         return;
       }
-      console.log(values)
-      const { deviceTypeId } = values;
-      delete values.deviceTypeId;
-      // values.type = 'A';
-    this.props.addDevice({id: deviceTypeId,...values}).then(res=>{
-      if (res.status == '201') {
+      delete values.deviceId;
+      delete values.number;
+      const { list } = this.state;
+      this.props.addBOMS({...values, numberDevices: list}).then(res=>{
         message.success('新增成功');
-        this.setState({
-          editRoleModal: false
-        })
         location.reload();
-      }
-    })
+      })
     });
   }
 
-  handleEdit = (e) => {
-    e.preventDefault();
-    this.props.form.validateFields((errors, values) => {
-      if (errors) {
-        return;
-      }
-      const { deviceId } = this.props.record;
-      delete values.deviceTypeId;
-      // values.type = 'A';
-      this.props.editDevice({id: deviceId,...values}).then(res=>{
-        if (res.status == '201') {
-          message.success('修改成功');
-          this.setState({
-            editRoleModal: false
-          })
-          location.reload();
-        }
+  handleAdd = () => {
+    const { deviceId, number, code } = this.state;
+    this.setState({
+      list: [...this.state.list,{deviceId, number, code}]
+    }, () => {
+      this.setState({
+        deviceId: '',
+        number: ''
       })
-    });
+    })
   }
 
   onCancel = () => {
@@ -70,21 +90,39 @@ class addDtoModal extends Component {
     onCancel();
   }
 
-  changeType = (val) => {
+  handleDelete = (record) => {
+    const { list } = this.state;
     this.setState({
-      deviceTypeId: val
+      list: list.filter(item=>item.code !== record.code)
     })
   }
 
-  onChange1 = (val) => {
-    console.log(val)
+  changeNumber = (e) => {
+    this.setState({
+      number: e.target.value
+    })
+  }
+
+  onSelect = (value, option) => {
+    this.setState({
+      deviceId: value,
+      code: option.props.children
+    })
+  };
+
+  onSearch = (searchText) => {
+    this.props.fetchDevicesByCodes(searchText).then(res=>{
+      this.setState({
+        options: res.data
+      })
+      console.log(res)
+    })
   }
 
   footer() {
-    const { handleType } = this.props;
     return (
-      <div>
-        <Button type="primary" onClick={handleType === 'add' ? this.handleSubmit : this.handleEdit}>
+      <div style={{textAlign: 'center', marginTop: '10px'}}>
+        <Button type="primary" htmlType="submit">
           确定
         </Button>
         <Button onClick={this.onCancel}>取消</Button>
@@ -93,309 +131,140 @@ class addDtoModal extends Component {
   }
 
   render() {
-    const { visible, deviceTypeList, record, handleType } = this.props;
-    const { code, abbreviation, name, outsideLength, outsideWidth, outsideHeight, insideLength, length, width, height, insideWidth, insideHeight, foldLength, foldWidth, foldHeight, weight, materialQuality, color, maxLoad, deduct, unit, isCirculation, price, owner, remark, openVolume, foldVolume, packingQuantity, npc, vertical, layer, deviceTypeId = 1  } = record;
+    const { visible } = this.props;
+    const { list, options } = this.state;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 9 },
       wrapperCol: { span: 14 },
     };
+    const children = options.map(item=><Option key={item.id}>{item.code}</Option>)
     return (
       <Modal
         width={1000}
         visible={visible}
-        title={handleType === 'add' ? '新增物料' : '修改物料'}
+        title='新增BOM'
         onCancel={this.onCancel}
-        footer={this.footer()}
+        footer={null}
         className="modal-header modal-body"
       >
         <div className="modalcontent">
           <Form
             layout="horizontal"
             autoComplete="off"
+            onSubmit={this.handleSubmit}
           >
-            <Row>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="物料编号" hasFeedback>
-                  {getFieldDecorator('code', {
-                    rules: [{ required: false, message: '请输入' }],
-                    initialValue: code,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="物料简称" hasFeedback>
-                  {getFieldDecorator('abbreviation', {
-                    rules: [
-                      { required: false, message: '请输入' },
-                    ],
-                    initialValue: abbreviation,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="物料全称" hasFeedback>
-                  {getFieldDecorator('name', {
-                    rules: [{ required: false, message: '请输入' }],
-                    initialValue: name,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="是否循环">
-                  {getFieldDecorator('isCirculation', {
-                    rules: [{ required: true, message: '' }],
-                    initialValue: isCirculation || true,
-                  })(
-                    <Radio.Group onChange={this.onChange1}>
-                      <Radio value={true}>可循环</Radio>
-                      <Radio value={false}>一次性</Radio>
-                    </Radio.Group>
-                  )}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="物料类型" hasFeedback>
-                  {getFieldDecorator('deviceTypeId', {
-                    rules: [{ required: true, message: '请选择物料类型' }],
-                    initialValue: Number(deviceTypeId) || 1,
-                  })(
-                    <Select style={{ width: '180px'}} placeholder="请选择" allowClear={true} onChange={this.changeType}>
-                      {
-                        deviceTypeList.map(item=>{
-                          return <Option key={item.id} value={item.id}>{item.name}</Option>
-                        })
-                      }
-                    </Select>
-                  )}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="物料归属" hasFeedback>
-                  {getFieldDecorator('owner', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: owner,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="价格" hasFeedback>
-                  {getFieldDecorator('price', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: price,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="颜色" hasFeedback>
-                  {getFieldDecorator('color', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: color,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="外长(mm)" hasFeedback>
-                  {getFieldDecorator('outsideLength', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: outsideLength,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="外宽(mm)" hasFeedback>
-                  {getFieldDecorator('outsideWidth', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: outsideWidth,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="外高(mm)" hasFeedback>
-                  {getFieldDecorator('outsideHeight', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: outsideHeight,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 2 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="长(mm)" hasFeedback>
-                  {getFieldDecorator('length', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: length,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 2 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="宽(mm)" hasFeedback>
-                  {getFieldDecorator('width', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: width,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 2 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="高(mm)" hasFeedback>
-                  {getFieldDecorator('height', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: height,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="重量(kg)" hasFeedback>
-                  {getFieldDecorator('weight', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: weight,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="最大承重(kg)" hasFeedback>
-                  {getFieldDecorator('maxLoad', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: maxLoad,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="材质" hasFeedback>
-                  {getFieldDecorator('materialQuality', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: materialQuality,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="内长(mm)" hasFeedback>
-                  {getFieldDecorator('insideLength', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: insideLength,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="内宽(mm)" hasFeedback>
-                  {getFieldDecorator('insideWidth', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: insideWidth,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="内高(mm)" hasFeedback>
-                  {getFieldDecorator('insideHeight', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: insideHeight,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="折叠后长(mm)" hasFeedback>
-                  {getFieldDecorator('foldLength', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: foldLength,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="折叠后宽(mm)" hasFeedback>
-                  {getFieldDecorator('foldWidth', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: foldWidth,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="折叠后高(mm)" hasFeedback>
-                  {getFieldDecorator('foldHeight', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: foldHeight,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 5 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="套叠扣减高度" hasFeedback>
-                  {getFieldDecorator('deduct', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: deduct,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 2 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="撑开运输体积(m³)" hasFeedback>
-                  {getFieldDecorator('openVolume', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: openVolume,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 2 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="折叠运输体积(m³)" hasFeedback>
-                  {getFieldDecorator('foldVolume', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: foldVolume,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="单位" hasFeedback>
-                  {getFieldDecorator('unit', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: unit,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col>
-              {deviceTypeId == 2 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="装件数量" hasFeedback>
-                  {getFieldDecorator('packingQuantity', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: packingQuantity,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="容纳零件数" hasFeedback>
-                  {getFieldDecorator('npc', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: npc,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="列" hasFeedback>
-                  {getFieldDecorator('vertical', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: vertical,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              {deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
-                <FormItem {...formItemLayout} label="层" hasFeedback>
-                  {getFieldDecorator('layer', {
-                    rules: [{ required: false, message: '' }],
-                    initialValue: layer,
-                  })(<Input placeholder="请输入" />)}
-                </FormItem>
-              </Col> : null}
-              <Col span={8}>
-                <FormItem {...formItemLayout} label="备注" hasFeedback>
-                  {getFieldDecorator('remark', {
-                    rules: [
-                      { required: false, message: '' },
-                    ],
-                    initialValue: remark,
-                  })(
-                    <TextArea />
-                  )}
-                </FormItem>
-              </Col>
-            </Row>
+            <div>
+              <Row>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="BOM编号" hasFeedback>
+                    {getFieldDecorator('code', {
+                      rules: [{ required: true, message: '请输入' }],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" />)}
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="BOM名称" hasFeedback>
+                    {getFieldDecorator('name', {
+                      rules: [
+                        { required: true, message: '请输入' },
+                      ],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" />)}
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="重量" hasFeedback>
+                    {getFieldDecorator('weight', {
+                      rules: [{ required: true, message: '请输入' }],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="长" hasFeedback>
+                    {getFieldDecorator('length', {
+                      rules: [{ required: true, message: '请输入' }],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" />)}
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="宽" hasFeedback>
+                    {getFieldDecorator('width', {
+                      rules: [{ required: true, message: '请输入' }],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" />)}
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="高" hasFeedback>
+                    {getFieldDecorator('height', {
+                      rules: [{ required: true, message: '请输入' }],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="备注" hasFeedback>
+                    {getFieldDecorator('remark', {
+                      rules: [{ required: false, message: '请输入' }],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" />)}
+                  </FormItem>
+                </Col>
+              </Row>
+              <Row>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="物料编号">
+                    {getFieldDecorator('deviceId', {
+                      rules: [{ required: false, message: '请输入' }],
+                      initialValue: '',
+                    })(
+                      <AutoComplete
+                        allowClear={true}
+                        style={{
+                          width: 160,
+                        }}
+                        onSelect={this.onSelect}
+                        onSearch={this.onSearch}
+                        placeholder="请输入"
+                      >
+                        {children}
+                      </AutoComplete>
+                    )}
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <FormItem {...formItemLayout} label="数量">
+                    {getFieldDecorator('number', {
+                      rules: [{ required: false, message: '请输入' }],
+                      initialValue: '',
+                    })(<Input placeholder="请输入" onChange={(e)=>this.changeNumber(e)} />)}
+                  </FormItem>
+                </Col>
+                <Col span={6}>
+                  <Button type="primary" onClick={this.handleAdd}>添加</Button>
+                </Col>
+              </Row>
+            </div>
+            <Table 
+            columns={this.columns}
+            dataSource={list}
+            pagination={false}
+          />
+          {this.footer()}
           </Form>
+          
         </div>
       </Modal>
     );
   }
 }
 
-export default connect((state) => state.system, { addDevice, editDevice })(addDtoModal)
+export default connect((state) => state.system, { fetchDevicesByCodes, addBOMS })(addDtoModal)

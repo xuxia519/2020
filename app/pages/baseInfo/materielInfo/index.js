@@ -322,6 +322,14 @@ class materielInfo extends Component {
     });
   }
 
+  changeData = (val) => {
+    this.setState({
+      type: val
+    }, ()=>{
+      this.fetchDevice();
+    })
+  }
+
   handleSearch = (e) => {
     e.preventDefault();
     const { type } = this.state;
@@ -365,7 +373,6 @@ class materielInfo extends Component {
       editModal: true,
       record,
       handleType: 'edit',
-      type: record.deviceTypeId
     })
   }
 
@@ -443,7 +450,7 @@ class materielInfo extends Component {
                         <FormItem {...formItemLayout} label="物料类型">
                           {getFieldDecorator('type', {
                             rules: [{ required: true, message: '请选择物料类型' }],
-                            initialValue: 1,
+                            initialValue: type,
                           })(
                             <Select style={{ width: '150px'}} placeholder="请选择" allowClear={true} defaultValue={type} onChange={this.changeType}>
                               {
@@ -493,6 +500,8 @@ class materielInfo extends Component {
               deviceTypeList={deviceTypeList}
               record={record}
               handleType={handleType}
+              type={type}
+              changeData={this.changeData}
             />
           </Layout>
         </Layout>

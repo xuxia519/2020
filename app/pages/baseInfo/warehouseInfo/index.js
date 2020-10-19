@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { Spin, Button, Form, Input, message, Layout, Row, Col, Table, Select, Tag, Modal } from 'antd';
 import { fetchWarehouse, fetchUsers, deleteWarehouses } from '@actions/baseInfo';
 import AddWarehouse from './modal/addWarehouse';
+import AddModal from './modal/addModal';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -15,6 +16,7 @@ class warehouseInfo extends Component {
     this.state = {
       warehouseList: [],
       visible: false,
+      visible1: false,
       pagination: {
         current: 1,
         pageSize: 10,
@@ -92,7 +94,7 @@ class warehouseInfo extends Component {
           return (
             <div>
               <span>
-                <a onClick={() => this.editRole(record)}>库位编辑</a>
+                <a onClick={() => this.handleAdd1(record)}>库位编辑</a>
                 <span className="ant-divider" />
               </span>
               <span>
@@ -170,10 +172,17 @@ class warehouseInfo extends Component {
       visible: true
     })
   }
+
+  handleAdd1 = () => {
+    this.setState({
+      visible1: true
+    })
+  }
   
   onCancel = () => {
     this.setState({
-      visible: false
+      visible: false,
+      visible1: false
     })
   }
 
@@ -277,6 +286,10 @@ class warehouseInfo extends Component {
               visible={visible}
               onCancel={this.onCancel}
               record={record}
+            />
+            <AddModal 
+              visible={this.state.visible1}
+              onCancel={this.onCancel}
             />
           </Layout>
         </Layout>

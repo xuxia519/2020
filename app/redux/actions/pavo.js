@@ -1,5 +1,5 @@
 import * as types from "../action-types";
-import { fetchWarehouses, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices, deleteDevice, fetchBOM } from '@apis/pavo';
+import { fetchWarehouses, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices, deleteDevice, fetchBOM, fetchDevicesByCode, addBOM, addWarehouseAreas } from '@apis/pavo';
 import { resolve, reject } from "core-js/fn/promise";
 
 export const fetchWarehouse = (params) => (dispatch) => {
@@ -73,6 +73,16 @@ export const addDevice = (params) => (dispatch) => {
     });
   })
 }
+export const addBOMS = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    addBOM({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
 //查询设备
 export const fetchDevice = (params) => (dispatch) => {
   return new Promise((resolve, reject) => {
@@ -111,6 +121,29 @@ export const deleteDevices = (params) => (dispatch) => {
 export const fetchBOMS = () => (dispatch) => {
   return new Promise((resolve, reject) => {
     fetchBOM().then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+//
+export const fetchDevicesByCodes = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchDevicesByCode(params).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+
+//
+export const addWarehouseArea = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    addWarehouseAreas({...params}).then((response) => {
       resolve(response);
     })
     .catch((error) => {

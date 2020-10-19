@@ -6,9 +6,9 @@ node10.15.3 + react@16.12.0 + redux@3.7.2 + react-router@3.2.0 + webpack@4.41.2 
 
 
 ```
-git clone --depth 1 https://github.com/duxianwei520/react.git  
+git clone https://github.com/xuxia519/2020.git 
 
-cd react (进入项目)
+cd project (进入项目)
 
 npm install (安装依赖包)
 
@@ -33,14 +33,3 @@ login(){
   }, 3000)
 }
 
-```
-
-
-## 功能一览
-- [√] 登录，以及登录权限控制
-- [√] 项目公用npm模块dll化
-- [√] redux完整示范
-- [√] mockjs模拟后端返回接口
-- [√] axios异步请求跨域的设置
-- [√] 实时的webpack包大小预览,方便优化
-- [√] draftjs编辑器

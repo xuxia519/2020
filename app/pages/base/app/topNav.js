@@ -12,11 +12,13 @@ export default class TopNav extends Component {
     super(props, context)
 
     this.state = {
-      selectedKeys: ['index']
+      selectedKeys: ['']
     }
   }
 
   componentDidMount() {
+    // const { } = location
+    console.log(location)
   }
 
 
@@ -28,6 +30,7 @@ export default class TopNav extends Component {
   }
 
   render() {
+    console.log(this.state.selectedKeys,'top')
     const leftNav = JSON.parse(sessionStorage.getItem('leftNav'))
     return (
       <div className="topNav">

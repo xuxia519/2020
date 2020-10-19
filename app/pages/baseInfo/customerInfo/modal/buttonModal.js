@@ -10,20 +10,11 @@ import {
   fetchChangeModuleStatus,
 } from '@apis/manage'
 
-// 连接公用常量、后端返回的数据方法  并放置在props里面调用
-// @connect((state, props) => ({
-//   config: state.config,
-// }))
-
-// 声明组件  并对外输出
 export default class pop extends Component {
-  // 初始化页面常量 绑定事件方法
   constructor(props) {
     super(props)
     this.state = {
-      // selectedRowKeys: [],
-      // loading: false,
-      // dataSource: [],
+     
     }
     this.deleteButton = this.deleteButton.bind(this)
   }
@@ -32,7 +23,6 @@ export default class pop extends Component {
     // this.getList()
   }
 
-  // 组件已经加载到dom中
   componentDidMount() {}
 
   componentWillReceiveProps(nextProps) {
@@ -47,7 +37,6 @@ export default class pop extends Component {
     })
   }
 
-  // 上线下线
   showOrHide=(id, val) => {
     fetchChangeModuleStatus({ id: id, status: val }, (result) => {
       this.props.updateList()

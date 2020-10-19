@@ -41,8 +41,8 @@ class userInfo extends Component {
       },
       {
         title: '用户类型',
-        dataIndex: 'name',
-        key: 'name',
+        dataIndex: 'userType',
+        key: 'userType',
         render: (text, record) => (
           <div>
             {
@@ -53,15 +53,9 @@ class userInfo extends Component {
       },
       {
         title: '用户姓名',
-        dataIndex: 'department',
-        key: 'department',
-        render: (text, record) => (
-          <div>
-            {
-              record.department.name
-            }
-          </div>
-        )
+        dataIndex: 'name',
+        key: 'name',
+        
       },
       {
         title: '电子邮箱',
@@ -71,8 +65,15 @@ class userInfo extends Component {
       },
       {
         title: '所属公司',
-        dataIndex: 'phone',
-        key: 'phone',
+        dataIndex: 'userType',
+        key: 'userType',
+        render: (text, record) => (
+          <div>
+            {
+              record.userType.remark
+            }
+          </div>
+        )
       },
       {
         title: '电话',
@@ -83,11 +84,18 @@ class userInfo extends Component {
         title: '所属部门',
         dataIndex: 'phone',
         key: 'phone',
+        render: (text, record) => (
+          <div>
+            {
+              record.department.name
+            }
+          </div>
+        )
       },
       {
         title: '备注信息',
-        dataIndex: 'phone',
-        key: 'phone',
+        dataIndex: 'remark',
+        key: 'remark',
       },
       {
         title: '操作',
@@ -117,6 +125,8 @@ class userInfo extends Component {
         userlist: res.data.content,
         loading: false
       })
+    }).then(error=>{
+      console.log(error,11111)
     });
   }
 

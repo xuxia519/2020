@@ -13,13 +13,24 @@ class addDtoModal extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      deviceTypeId: 1
+      type: 1
     };
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-    this.props.form.setFieldsValue({code: '', aliasCode: '', name: '', remark:''});
+    // this.props.form.setFieldsValue({code: '', name: '', remark:''});
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.type !== this.props.type) {
+      this.setState({
+        type: nextProps.type
+      })
+    }
+    // if (nextProps.handleType == 'add') {
+    //   nextProps.form.setFieldsValue({code: '', name: '', remark:''});
+    // }
   }
 
   handleSubmit(e) {
@@ -28,19 +39,16 @@ class addDtoModal extends Component {
       if (errors) {
         return;
       }
-      console.log(values)
       const { deviceTypeId } = values;
       delete values.deviceTypeId;
       // values.type = 'A';
-    this.props.addDevice({id: deviceTypeId,...values}).then(res=>{
-      if (res.status == '201') {
-        message.success('新增成功');
-        this.setState({
-          editRoleModal: false
-        })
-        location.reload();
-      }
-    })
+      this.props.addDevice({id: deviceTypeId,...values}).then(res=>{
+        if (res.status == '201') {
+          message.success('新增成功');
+          this.onCancel();
+          this.props.changeData && this.props.changeData(deviceTypeId)
+        }
+      })
     });
   }
 
@@ -50,16 +58,16 @@ class addDtoModal extends Component {
       if (errors) {
         return;
       }
-      const { deviceId } = this.props.record;
+      const { deviceTypeId } = values;
       delete values.deviceTypeId;
       // values.type = 'A';
-      this.props.editDevice({id: deviceId,...values}).then(res=>{
-        if (res.status == '201') {
-          message.success('修改成功');
-          this.setState({
-            editRoleModal: false
-          })
-          location.reload();
+      this.props.editDevice({id: deviceTypeId,...values}).then(res=>{
+        if (res.status == '200') {
+          if (res.status == '200') {
+            message.success('修改成功');
+            this.onCancel();
+            this.props.changeData && this.props.changeData(deviceTypeId)
+          }
         }
       })
     });
@@ -69,15 +77,23 @@ class addDtoModal extends Component {
     const { onCancel } = this.props;
     onCancel();
   }
-
+  
+  resetValue = () => {
+    this.props.form.setFieldsValue({
+      code: '', abbreviation: '', name: '', outsideLength: '', outsideWidth: '', outsideHeight: '', insideLength: '', length: '', width:'', height: '', insideWidth: '', insideHeight: '', foldLength: '', foldWidth: '', foldHeight: '', weight: '', materialQuality: '', color: '', maxLoad: '', deduct: '', unit: '', isCirculation: '', price: '', owner: '', remark: '', openVolume: '', foldVolume: '', packingQuantity: '', npc: '', vertical: '', layer: ''
+    });
+  }
   changeType = (val) => {
+    console.log(val,1111,this.props.form)
     this.setState({
-      deviceTypeId: val
+      type: val
+    },()=>{
+      this.resetValue();
     })
+    
   }
 
   onChange1 = (val) => {
-    console.log(val)
   }
 
   footer() {
@@ -93,8 +109,9 @@ class addDtoModal extends Component {
   }
 
   render() {
+    const { type } = this.state;
     const { visible, deviceTypeList, record, handleType } = this.props;
-    const { code, abbreviation, name, outsideLength, outsideWidth, outsideHeight, insideLength, length, width, height, insideWidth, insideHeight, foldLength, foldWidth, foldHeight, weight, materialQuality, color, maxLoad, deduct, unit, isCirculation, price, owner, remark, openVolume, foldVolume, packingQuantity, npc, vertical, layer, deviceTypeId = 1  } = record;
+    const { code, abbreviation, name, outsideLength, outsideWidth, outsideHeight, insideLength, length, width, height, insideWidth, insideHeight, foldLength, foldWidth, foldHeight, weight, materialQuality, color, maxLoad, deduct, unit, isCirculation, price, owner, remark, openVolume, foldVolume, packingQuantity, npc, vertical, layer  } = record;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 9 },
@@ -158,7 +175,7 @@ class addDtoModal extends Component {
                 <FormItem {...formItemLayout} label="物料类型" hasFeedback>
                   {getFieldDecorator('deviceTypeId', {
                     rules: [{ required: true, message: '请选择物料类型' }],
-                    initialValue: Number(deviceTypeId) || 1,
+                    initialValue: Number(type) || 1,
                   })(
                     <Select style={{ width: '180px'}} placeholder="请选择" allowClear={true} onChange={this.changeType}>
                       {
@@ -194,7 +211,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col>
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="外长(mm)" hasFeedback>
                   {getFieldDecorator('outsideLength', {
                     rules: [{ required: false, message: '' }],
@@ -202,7 +219,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="外宽(mm)" hasFeedback>
                   {getFieldDecorator('outsideWidth', {
                     rules: [{ required: false, message: '' }],
@@ -210,7 +227,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="外高(mm)" hasFeedback>
                   {getFieldDecorator('outsideHeight', {
                     rules: [{ required: false, message: '' }],
@@ -218,7 +235,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 2 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
+              {type == 2 || type == 3 || type == 4 || type == 7 || type == 8 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="长(mm)" hasFeedback>
                   {getFieldDecorator('length', {
                     rules: [{ required: false, message: '' }],
@@ -226,7 +243,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 2 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
+              {type == 2 || type == 3 || type == 4 || type == 7 || type == 8 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="宽(mm)" hasFeedback>
                   {getFieldDecorator('width', {
                     rules: [{ required: false, message: '' }],
@@ -234,7 +251,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 2 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
+              {type == 2 || type == 3 || type == 4 || type == 7 || type == 8 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="高(mm)" hasFeedback>
                   {getFieldDecorator('height', {
                     rules: [{ required: false, message: '' }],
@@ -266,7 +283,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col>
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="内长(mm)" hasFeedback>
                   {getFieldDecorator('insideLength', {
                     rules: [{ required: false, message: '' }],
@@ -274,7 +291,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="内宽(mm)" hasFeedback>
                   {getFieldDecorator('insideWidth', {
                     rules: [{ required: false, message: '' }],
@@ -282,7 +299,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="内高(mm)" hasFeedback>
                   {getFieldDecorator('insideHeight', {
                     rules: [{ required: false, message: '' }],
@@ -290,7 +307,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="折叠后长(mm)" hasFeedback>
                   {getFieldDecorator('foldLength', {
                     rules: [{ required: false, message: '' }],
@@ -298,7 +315,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="折叠后宽(mm)" hasFeedback>
                   {getFieldDecorator('foldWidth', {
                     rules: [{ required: false, message: '' }],
@@ -306,7 +323,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="折叠后高(mm)" hasFeedback>
                   {getFieldDecorator('foldHeight', {
                     rules: [{ required: false, message: '' }],
@@ -314,7 +331,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 1 || deviceTypeId == 3 || deviceTypeId == 4 || deviceTypeId == 5 ? <Col span={8}>
+              {type == 1 || type == 3 || type == 4 || type == 5 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="套叠扣减高度" hasFeedback>
                   {getFieldDecorator('deduct', {
                     rules: [{ required: false, message: '' }],
@@ -322,7 +339,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 2 ? <Col span={8}>
+              {type == 2 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="撑开运输体积(m³)" hasFeedback>
                   {getFieldDecorator('openVolume', {
                     rules: [{ required: false, message: '' }],
@@ -330,7 +347,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 2 ? <Col span={8}>
+              {type == 2 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="折叠运输体积(m³)" hasFeedback>
                   {getFieldDecorator('foldVolume', {
                     rules: [{ required: false, message: '' }],
@@ -346,7 +363,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col>
-              {deviceTypeId == 2 ? <Col span={8}>
+              {type == 2 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="装件数量" hasFeedback>
                   {getFieldDecorator('packingQuantity', {
                     rules: [{ required: false, message: '' }],
@@ -354,7 +371,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
+              {type == 7 || type == 8 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="容纳零件数" hasFeedback>
                   {getFieldDecorator('npc', {
                     rules: [{ required: false, message: '' }],
@@ -362,7 +379,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
+              {type == 7 || type == 8 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="列" hasFeedback>
                   {getFieldDecorator('vertical', {
                     rules: [{ required: false, message: '' }],
@@ -370,7 +387,7 @@ class addDtoModal extends Component {
                   })(<Input placeholder="请输入" />)}
                 </FormItem>
               </Col> : null}
-              {deviceTypeId == 7 || deviceTypeId == 8 ? <Col span={8}>
+              {type == 7 || type == 8 ? <Col span={8}>
                 <FormItem {...formItemLayout} label="层" hasFeedback>
                   {getFieldDecorator('layer', {
                     rules: [{ required: false, message: '' }],

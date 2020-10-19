@@ -16,7 +16,14 @@ class addDtoModal extends Component {
   }
 
   componentDidMount() {
-    this.props.form.setFieldsValue({code: '', aliasCode: '', name: '', remark:''});
+    console.log(1111)
+    this.props.form.setFieldsValue({ key: '' });
+  }
+
+  componentWillUpdate(nextProps) {
+    console.log(this.props.visible,1111)
+    console.log(nextProps.visible,2222)
+    // this.props.form.setFieldsValue({ key: '' });
   }
 
   handleSubmit(e) {
