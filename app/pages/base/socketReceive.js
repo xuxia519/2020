@@ -23,11 +23,6 @@ export default class app extends Component {
 
   componentDidMount() { }
 
-  // #region vscode 1.17的收缩代码块功能  业务代码
-
-
-  // #endregion
-
   // 发送socket数据
   onClickSend = () => {
     // Socket.dispatch({ type: 'receive/hello2' })

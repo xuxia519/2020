@@ -32,7 +32,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     const res = response
-    console.log('response',response)
+    // console.log('response',response)
     if (res.status !== 200) {
       if (res.status == 401) {
         console.log(111)

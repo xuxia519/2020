@@ -18,7 +18,6 @@ const FormItem = Form.Item
 
 
 class Login extends Component {
-  // 初始化页面常量 绑定事件方法
   constructor(props, context) {
     super(props)
     this.state = {
@@ -33,8 +32,6 @@ class Login extends Component {
     // this.props.dispatch(clearGformCache2({}))
     this.props.form.setFieldsValue({ userName: 'xx', password: '123' })
   }
-
-  // #region 收缩业务代码功能
 
   handleSubmit(e, isCertificates) {
     e.preventDefault()
@@ -106,8 +103,6 @@ class Login extends Component {
       }
     })
   }
-
-  // #endregion
 
   render() {
     const { getFieldDecorator } = this.props.form

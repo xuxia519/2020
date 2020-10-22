@@ -20,11 +20,6 @@ export default class app extends Component {
 
   componentDidMount() {}
 
-  // #region vscode 1.17的收缩代码块功能  业务代码
-
-
-  // #endregion
-
   render() {
     return (
       <div className="page">

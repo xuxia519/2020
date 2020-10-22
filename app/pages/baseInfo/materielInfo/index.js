@@ -415,7 +415,7 @@ class materielInfo extends Component {
     };
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Layout>
+        <Spin spinning={loading}>
           <Layout className="page-body">
             <Content>
               <div className="page-header">
@@ -504,7 +504,7 @@ class materielInfo extends Component {
               changeData={this.changeData}
             />
           </Layout>
-        </Layout>
+        </Spin>
       </div>
     );
   }

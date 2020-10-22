@@ -1,5 +1,5 @@
 import * as types from "../action-types";
-import { fetchWarehouses, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices, deleteDevice, fetchBOM, fetchDevicesByCode, addBOM, addWarehouseAreas } from '@apis/pavo';
+import { fetchWarehouses, fetchWarehousesAll, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices, deleteDevice, fetchBOM, fetchDevicesByCode, addBOM, addWarehouseAreas, fetchWarehouseAreas, fetchInboundRecords, addInboundRecords, deleteInboundRecords, fetchOutboundRecords, addOutboundRecords } from '@apis/pavo';
 import { resolve, reject } from "core-js/fn/promise";
 
 export const fetchWarehouse = (params) => (dispatch) => {
@@ -14,6 +14,17 @@ export const fetchWarehouse = (params) => (dispatch) => {
   });
 };
 
+export const fetchWarehousesAlls = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchWarehousesAll(params)
+      .then((response) => {
+        resolve(response);
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+};
 // 省
 export const fetchProvinces = (params) => (dispatch) => {
   return new Promise((resolve, reject) => {
@@ -140,10 +151,78 @@ export const fetchDevicesByCodes = (params) => (dispatch) => {
   })
 }
 
-//
+//新增
 export const addWarehouseArea = (params) => (dispatch) => {
   return new Promise((resolve, reject) => {
     addWarehouseAreas({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+//查询
+export const fetchWarehouseArea = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchWarehouseAreas({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// 入库
+// 查询
+export const fetchInboundRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchInboundRecords({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// 新增
+export const addInboundRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    addInboundRecords({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// 删除
+export const deleteInboundRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    deleteInboundRecords(params).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// 出库
+// 查询
+export const fetchOutboundRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchOutboundRecords({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// 
+export const addOutboundRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    addOutboundRecords({...params}).then((response) => {
       resolve(response);
     })
     .catch((error) => {

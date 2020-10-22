@@ -7,6 +7,13 @@ export function fetchWarehouses(data) {
     params: {...data}
   })
 }
+export function fetchWarehousesAll(data) {
+  return request({
+    url: '/pavo/warehouses/list',
+    method: 'get',
+    params: {...data}
+  })
+}
 
 // 省
 export function fetchProvince(data) {
@@ -106,6 +113,55 @@ export function addBOM(data) {
 export function addWarehouseAreas(data) {
   return request({
     url: `/pavo/warehouse-areas`,
+    method: 'post',
+    data
+  })
+}
+//查询库位
+export function fetchWarehouseAreas(data) {
+  return request({
+    url: `/pavo/warehouse-areas/page`,
+    method: 'get',
+    params: {...data}
+  })
+}
+//入库
+//查询
+export function fetchInboundRecords(data) {
+  return request({
+    url: `/pavo/inbound-records/page`,
+    method: 'get',
+    params: {...data}
+  })
+}
+// 新增
+export function addInboundRecords(data) {
+  return request({
+    url: `/pavo/inbound-records`,
+    method: 'post',
+    data
+  })
+}
+// 删除
+export function deleteInboundRecords(id) {
+  return request({
+    url: `/pavo/inbound-records/${id}`,
+    method: 'delete'
+  })
+}
+//出库
+//查询
+export function fetchOutboundRecords(data) {
+  return request({
+    url: `/pavo/outbound-records/page`,
+    method: 'get',
+    params: {...data}
+  })
+}
+//
+export function addOutboundRecords(data) {
+  return request({
+    url: `/pavo/outbound-records`,
     method: 'post',
     data
   })

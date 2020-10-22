@@ -3,22 +3,22 @@ import { connect } from 'react-redux';
 import { Button, Layout, message, Row, Select, Form, Col, Input, Table, DatePicker, Modal, AutoComplete, Slider, Spin } from 'antd';
 
 import '@styles/set.less'
-import { fetchOutboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord } from '@actions/pavo'
+import { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord } from '@actions/pavo'
 import AddModal from './modal/addModal';
 import moment from 'moment';
+import { findAllInRenderedTree } from 'react-addons-test-utils';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
 const { Content } = Layout
 
 @Form.create({})
-class outboundManage extends Component {
+class labelManage extends Component {
   constructor(props) {
     super(props)
     this.state = {
       list: [],
       visible: false,
-      loading: false,
       warehouseList: [],
       options: []
     };
@@ -32,69 +32,53 @@ class outboundManage extends Component {
         render: (text, record, index) => `${index + 1}`
       },
       {
-        title: '运单号',
+        title: '节点',
         dataIndex: 'code',
         key: 'code',
-        width: '15%',
       },
       
       {
-        title: '出库节点',
+        title: '工号',
         key: 'name',
-        render: (text, record) => {
-          return (
-            <span>{record.warehouseArea.name}</span>
-          )
-        }
       },
       {
-        title: '操作员',
-        dataIndex: 'type',
-        key: 'type',
-        width: '15%',
-        render: (record) => {
-          return (
-            <span>{record.type == 'RETURN' ? '反箱入库' : '其他入库'}</span>
-          )
-        }
-      },
-      {
-        title: '出库节点',
+        title: '编号',
         key: 'wcode',
-        render: (text, record) => {
-          return (
-            <span>{record.warehouseArea.code}</span>
-          )
-        }
       },
       {
-        title: '出库时间',
+        title: '打印人',
         dataIndex: 'createTime',
         key: 'createTime',
-        width: '15%',
+      },
+      {
+        title: '打印时间',
+        dataIndex: 'createTime',
+        key: 'createTime',
+      },
+      {
+        title: '质量标记',
+        dataIndex: 'createTime',
+        key: 'createTime',
+      },
+      {
+        title: '检验',
+        dataIndex: 'createTime',
+        key: 'createTime',
+      },
+      {
+        title: '状态',
+        dataIndex: 'createTime',
+        key: 'createTime',
+      },
+      {
+        title: '备注',
+        dataIndex: 'createTime',
+        key: 'createTime',
       },
       {
         title: '操作',
-        dataIndex: 'operate',
-        key: 'operate',
-        width: '15%',
-        render: (record) => {
-          return (
-            <a onClick={()=>this.handleEdit(record)}>修改</a>|
-            <a onClick={()=>this.handleDelete(record)}>删除</a>
-          )
-        }
-      },
-      {
-        title: '出库确认',
         dataIndex: 'createTime',
         key: 'createTime',
-        width: '15%',
-        render: (record) => {
-          return (
-            <a onClick={()=>this.handleIn(record)}>出库</a>
-          )
-        }
       },
     ];
     return configArr;
@@ -106,7 +90,7 @@ class outboundManage extends Component {
   }
 
   getData = () => {
-    this.props.fetchOutboundRecord({pageNumber:'0', pageSize: '10'}).then(res=>{
+    this.props.fetchInboundRecord({pageNumber:'0', pageSize: '10'}).then(res=>{
       this.setState({
         list: res.data.content,
         loading: false
@@ -142,7 +126,7 @@ class outboundManage extends Component {
           params.endTime = '';
         }
         delete values.date;
-        this.props.fetchOutboundRecord({...params, pageNumber:'0', pageSize: '10'}).then(res=>{
+        this.props.fetchInboundRecord({...params, pageNumber:'0', pageSize: '10'}).then(res=>{
           this.setState({
             list: res.data.content,
             loading: false
@@ -224,7 +208,7 @@ class outboundManage extends Component {
                   <Form style={{ width: '100%' }} onSubmit={this.handleSearch}>
                     <Row>
                       <Col span={8}>
-                        <FormItem label="出库类型" {...formItemLayout}>
+                        <FormItem label="节点" {...formItemLayout}>
                           {getFieldDecorator('type', {
                               rules: [
                                 {
@@ -234,14 +218,14 @@ class outboundManage extends Component {
                               ],
                             })(
                               <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">返箱出库</Option>
-                                <Option key="OTHER" value="OTHER">其他出库</Option>
+                                <Option key="RETURN" value="RETURN">返箱入库</Option>
+                                <Option key="OTHER" value="OTHER">其他入库</Option>
                               </Select>
                             )}
                         </FormItem>
                       </Col>
                       <Col span={8}>
-                        <FormItem label="出库状态" {...formItemLayout}>
+                        <FormItem label="工号" {...formItemLayout}>
                           {getFieldDecorator('status', {
                             rules: [
                               {
@@ -252,14 +236,14 @@ class outboundManage extends Component {
                             initialValue: "",
                             })(
                               <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">待出库</Option>
-                                <Option key="OTHER" value="OTHER">已出库</Option>
+                                <Option key="RETURN" value="RETURN">待入库</Option>
+                                <Option key="OTHER" value="OTHER">已入库</Option>
                               </Select>
                             )}
                         </FormItem>
                       </Col>
                       <Col span={8}>
-                        <FormItem label="出库节点" {...formItemLayout}>
+                        <FormItem label="编号" {...formItemLayout}>
                           {getFieldDecorator('warehouseAreaIds', {
                             rules: [
                               {
@@ -280,24 +264,7 @@ class outboundManage extends Component {
                       </Col>
                     </Row>
                     <Row>
-                      <Col span={8}>
-                        <FormItem label="出库日期" {...formItemLayout}>
-                          {getFieldDecorator('date', {
-                            rules: [
-                              {
-                                required: false,
-                                message: "请输入",
-                              },
-                            ],
-                            initialValue: "",
-                            })(
-                             <RangePicker showTime allowClear={true}/>
-                            )}
-                        </FormItem>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col span={6}><FormItem><Button size="small" htmlType="submit">查询</Button><Button size="small" type="primary" onClick={this.handleAdd}>新增出库</Button></FormItem></Col>
+                      <Col span={6}><FormItem><Button size="small" htmlType="submit">查询</Button><Button size="small" type="primary" onClick={this.handleAdd}>新增</Button></FormItem></Col>
                     </Row>
                   </Form>
                 </div>
@@ -323,4 +290,4 @@ class outboundManage extends Component {
     )
   }
 }
-export default connect((state) => state.warehouseManage, { fetchOutboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord })(outboundManage)
+export default connect((state) => state.warehouseManage, { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord })(labelManage)

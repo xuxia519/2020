@@ -17,6 +17,7 @@ class BOM extends Component {
     this.state = {
       editModal: false,
       BOMList: [],
+      loading: false
     };
   }
 
@@ -170,7 +171,7 @@ class BOM extends Component {
     
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Layout>
+        <Spin spinning={loading}>
           <Layout className="page-body">
             <Content>
               <div className="page-header">
@@ -219,7 +220,7 @@ class BOM extends Component {
               handleType={handleType}
             />
           </Layout>
-        </Layout>
+        </Spin>
       </div>
     );
   }

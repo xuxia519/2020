@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
 import { Progress } from 'antd'
 
-// 声明组件  并对外输出
 export default class developing extends Component {
-  // 初始化页面常量 绑定事件方法
   constructor(props) {
     super(props)
     this.state = {
@@ -11,8 +9,6 @@ export default class developing extends Component {
     }
   }
 
-
-  // 组件已经加载到dom中
   componentDidMount() {
 
   }

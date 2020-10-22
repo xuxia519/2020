@@ -66,7 +66,31 @@ const menuList = [
       {
         resName: "出库管理",
         resKey: "outboundManage",
-      }
+      },
+      {
+        resName: "移库管理",
+        resKey: "transferManage",
+      },
+      {
+        resName: "清洗管理",
+        resKey: "washManage",
+      },
+      {
+        resName: "打包管理",
+        resKey: "packManage",
+      },
+      {
+        resName: "拆包管理",
+        resKey: "unpackManage",
+      },
+      {
+        resName: "库存查询",
+        resKey: "stockCheck",
+      },
+      {
+        resName: "标签管理",
+        resKey: "labelManage",
+      },
     ],
   }
 ];

@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Layout, message, Row, Select, Form, Col, Input, Table, Icon, Modal, Tree } from 'antd';
+import { Button, Layout, message, Row, Select, Form, Col, Input, Table, Icon, Modal, Tree, Spin } from 'antd';
 import { fetchPermissionsListByParam, fetchResourceList, editPermissions, addPermissions, deletePowers } from '@actions/system'
 
 import '@styles/set.less'
@@ -15,6 +15,7 @@ class powerManage extends Component {
     this.state = {
       permissionList: [],
       editModal: false,
+      loading: false,
       permissions: [],
       treeData: [],
       resourceIds: [],
@@ -100,7 +101,8 @@ class powerManage extends Component {
   getResource = () => {
     this.props.fetchResourceList().then(res=>{
       this.setState({
-        treeData: res.data
+        treeData: res.data,
+        loading: false
       })
     });
   }
@@ -234,14 +236,14 @@ class powerManage extends Component {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { selectedRowKeys, permissionList, editModal, treeData, resourceIds, description, name, type, pagination } = this.state;
+    const { selectedRowKeys, permissionList, editModal, treeData, resourceIds, description, name, type, pagination, loading } = this.state;
     const rowSelection = {
       selectedRowKeys,
       onChange: this.onSelectChange,
     };
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Layout>
+        <Spin spinning={loading}>
           <Layout className="page-body">
             <Content>
               <Row>
@@ -310,7 +312,7 @@ class powerManage extends Component {
               </div>
             </Modal>
           </Layout>
-        </Layout>
+        </Spin>
       </div>
     )
   }

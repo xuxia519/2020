@@ -15,6 +15,7 @@ class customerInfo extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      loading: false,
       editModal: false,
       editModal2: false,
       customerslist: [],
@@ -155,7 +156,7 @@ class customerInfo extends Component {
     console.log(value)
     this.props.fetchProvinces({parentId: value}).then(res=>{
       this.setState({
-        cities: res.data
+        cities: res.data,
       })
     })
   };
@@ -645,7 +646,7 @@ class customerInfo extends Component {
 
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Layout>
+        <Spin spinning={loading}>
           <Layout className="page-body">
             <Content>
               <div className="page-header">
@@ -717,7 +718,7 @@ class customerInfo extends Component {
               id={record.id}
             />
           </Layout>
-        </Layout>
+        </Spin>
       </div>
     );
   }

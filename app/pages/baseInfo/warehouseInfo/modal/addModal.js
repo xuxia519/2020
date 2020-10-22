@@ -1,8 +1,8 @@
 
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Form, Input, message, Modal, Row, Col } from 'antd';
-import { addWarehouseArea } from '@actions/pavo';
+import { Button, Form, Input, message, Modal, Row, Col, Table } from 'antd';
+import { addWarehouseArea, fetchWarehouseArea } from '@actions/pavo';
 
 
 const FormItem = Form.Item
@@ -13,14 +13,35 @@ class addModal extends Component {
     super(props)
     this.state = {
       loading: false,
+      list:[]
     }
+    this.columns = [
+      {
+        title: '编号',
+        dataIndex: 'code',
+        key: 'code',
+      },
+      {
+        title: '名称',
+        dataIndex: 'name',
+        key: 'name',
+      },
+    ]
     this.handleSubmit = this.handleSubmit.bind(this)
   }
 
   componentDidMount() {
-    this.props.form.resetFields()
+    this.props.form.resetFields();
+    this.getData();
   }
 
+  getData = () => {
+    this.props.fetchWarehouseArea({page:'0', size: '10'}).then(res=>{
+      this.setState({
+        list: res.data.content
+      })
+    })
+  }
   handleSubmit(e) {
     e.preventDefault()
     this.props.form.validateFields((errors, values) => {
@@ -31,6 +52,7 @@ class addModal extends Component {
       this.props.addWarehouseArea({...values}).then(res=>{
         if (res.status == '201') {
           message.success('新增成功');
+          this.getData();
         } else {
           message.error('新增失败');
         }
@@ -88,9 +110,13 @@ class addModal extends Component {
               </Col>
             </Row>
           </Form>
+          <Table 
+            columns={this.columns}
+            dataSource={this.state.list}
+          />
         </div>
       </Modal>
     )
   }
 }
-export default connect((state) => state.warehouse, { addWarehouseArea })(addModal)
+export default connect((state) => state.warehouse, { addWarehouseArea, fetchWarehouseArea })(addModal)

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button, Layout, message, Row, Select, Form, Col, Input, Table, DatePicker, Modal, AutoComplete, Slider, Spin } from 'antd';
+import { Button, Layout, message, Row, Select, Form, Col, Input, Table, DatePicker, Modal, AutoComplete, Slider } from 'antd';
 
 import '@styles/set.less'
-import { fetchOutboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord } from '@actions/pavo'
+import { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord } from '@actions/pavo'
 import AddModal from './modal/addModal';
 import moment from 'moment';
 const { Option } = Select;
@@ -12,13 +12,12 @@ const FormItem = Form.Item;
 const { Content } = Layout
 
 @Form.create({})
-class outboundManage extends Component {
+class stockCheck extends Component {
   constructor(props) {
     super(props)
     this.state = {
       list: [],
       visible: false,
-      loading: false,
       warehouseList: [],
       options: []
     };
@@ -32,14 +31,14 @@ class outboundManage extends Component {
         render: (text, record, index) => `${index + 1}`
       },
       {
-        title: '运单号',
+        title: '仓库代码',
         dataIndex: 'code',
         key: 'code',
         width: '15%',
       },
       
       {
-        title: '出库节点',
+        title: '仓库明细',
         key: 'name',
         render: (text, record) => {
           return (
@@ -48,7 +47,7 @@ class outboundManage extends Component {
         }
       },
       {
-        title: '操作员',
+        title: '日期',
         dataIndex: 'type',
         key: 'type',
         width: '15%',
@@ -59,7 +58,7 @@ class outboundManage extends Component {
         }
       },
       {
-        title: '出库节点',
+        title: '库位',
         key: 'wcode',
         render: (text, record) => {
           return (
@@ -68,33 +67,22 @@ class outboundManage extends Component {
         }
       },
       {
-        title: '出库时间',
+        title: '料号',
         dataIndex: 'createTime',
         key: 'createTime',
         width: '15%',
       },
       {
-        title: '操作',
-        dataIndex: 'operate',
-        key: 'operate',
-        width: '15%',
-        render: (record) => {
-          return (
-            <a onClick={()=>this.handleEdit(record)}>修改</a>|
-            <a onClick={()=>this.handleDelete(record)}>删除</a>
-          )
-        }
-      },
-      {
-        title: '出库确认',
+        title: '品名',
         dataIndex: 'createTime',
         key: 'createTime',
         width: '15%',
-        render: (record) => {
-          return (
-            <a onClick={()=>this.handleIn(record)}>出库</a>
-          )
-        }
+      },
+      {
+        title: '数量',
+        dataIndex: 'createTime',
+        key: 'createTime',
+        width: '15%',
       },
     ];
     return configArr;
@@ -106,7 +94,7 @@ class outboundManage extends Component {
   }
 
   getData = () => {
-    this.props.fetchOutboundRecord({pageNumber:'0', pageSize: '10'}).then(res=>{
+    this.props.fetchInboundRecord({pageNumber:'0', pageSize: '10'}).then(res=>{
       this.setState({
         list: res.data.content,
         loading: false
@@ -117,8 +105,7 @@ class outboundManage extends Component {
   fetchWarehousesAlls = () => {
     this.props.fetchWarehousesAlls({isNullInbound: 'false'}).then(res=>{
       this.setState({
-        warehouseList: res.data,
-        loading: false
+        warehouseList: res.data
       })
     })
   }
@@ -142,7 +129,7 @@ class outboundManage extends Component {
           params.endTime = '';
         }
         delete values.date;
-        this.props.fetchOutboundRecord({...params, pageNumber:'0', pageSize: '10'}).then(res=>{
+        this.props.fetchInboundRecord({...params, pageNumber:'0', pageSize: '10'}).then(res=>{
           this.setState({
             list: res.data.content,
             loading: false
@@ -208,7 +195,7 @@ class outboundManage extends Component {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { list, warehouseList, options, loading } = this.state;
+    const { list, warehouseList, options } = this.state;
     const formItemLayout = {
       labelCol: { span: 9 },
       wrapperCol: { span: 15 },
@@ -216,7 +203,7 @@ class outboundManage extends Component {
     const children = options.map(item=><Option key={item.id}>111</Option>)
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Spin spinning={loading}>
+        <Layout>
           <Layout className="page-body">
             <Content>
               <div className="page-header">
@@ -224,7 +211,7 @@ class outboundManage extends Component {
                   <Form style={{ width: '100%' }} onSubmit={this.handleSearch}>
                     <Row>
                       <Col span={8}>
-                        <FormItem label="出库类型" {...formItemLayout}>
+                        <FormItem label="仓库" {...formItemLayout}>
                           {getFieldDecorator('type', {
                               rules: [
                                 {
@@ -234,14 +221,14 @@ class outboundManage extends Component {
                               ],
                             })(
                               <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">返箱出库</Option>
-                                <Option key="OTHER" value="OTHER">其他出库</Option>
+                                <Option key="RETURN" value="RETURN">返箱入库</Option>
+                                <Option key="OTHER" value="OTHER">其他入库</Option>
                               </Select>
                             )}
                         </FormItem>
                       </Col>
                       <Col span={8}>
-                        <FormItem label="出库状态" {...formItemLayout}>
+                        <FormItem label="料号" {...formItemLayout}>
                           {getFieldDecorator('status', {
                             rules: [
                               {
@@ -252,14 +239,14 @@ class outboundManage extends Component {
                             initialValue: "",
                             })(
                               <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">待出库</Option>
-                                <Option key="OTHER" value="OTHER">已出库</Option>
+                                <Option key="RETURN" value="RETURN">待入库</Option>
+                                <Option key="OTHER" value="OTHER">已入库</Option>
                               </Select>
                             )}
                         </FormItem>
                       </Col>
                       <Col span={8}>
-                        <FormItem label="出库节点" {...formItemLayout}>
+                        <FormItem label="库位" {...formItemLayout}>
                           {getFieldDecorator('warehouseAreaIds', {
                             rules: [
                               {
@@ -281,7 +268,7 @@ class outboundManage extends Component {
                     </Row>
                     <Row>
                       <Col span={8}>
-                        <FormItem label="出库日期" {...formItemLayout}>
+                        <FormItem label="日期" {...formItemLayout}>
                           {getFieldDecorator('date', {
                             rules: [
                               {
@@ -297,7 +284,7 @@ class outboundManage extends Component {
                       </Col>
                     </Row>
                     <Row>
-                      <Col span={6}><FormItem><Button size="small" htmlType="submit">查询</Button><Button size="small" type="primary" onClick={this.handleAdd}>新增出库</Button></FormItem></Col>
+                      <Col span={6}><FormItem><Button size="small" htmlType="submit">查询</Button><Button size="small" type="primary" onClick={this.handleAdd}>新增入库</Button></FormItem></Col>
                     </Row>
                   </Form>
                 </div>
@@ -318,9 +305,9 @@ class outboundManage extends Component {
               warehouseList={warehouseList}
             />
           </Layout>
-        </Spin>
+        </Layout>
       </div>
     )
   }
 }
-export default connect((state) => state.warehouseManage, { fetchOutboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord })(outboundManage)
+export default connect((state) => state.warehouseManage, { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord })(stockCheck)

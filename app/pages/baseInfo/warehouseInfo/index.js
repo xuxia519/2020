@@ -216,7 +216,7 @@ class warehouseInfo extends Component {
 
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Layout>
+        <Spin spinning={loading}>
           <Layout className="page-body">
             <Content>
               <Row>
@@ -292,7 +292,7 @@ class warehouseInfo extends Component {
               onCancel={this.onCancel}
             />
           </Layout>
-        </Layout>
+        </Spin>
       </div>
     );
   }

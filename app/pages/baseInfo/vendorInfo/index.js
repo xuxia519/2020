@@ -572,7 +572,7 @@ class vendorInfo extends Component {
     const { loading, editModal, type1, vendorlist } = this.state;
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Layout>
+        <Spin spinning={loading}>
           <Layout className="page-body">
             <Content>
               <div className="page-header">
@@ -636,7 +636,7 @@ class vendorInfo extends Component {
               {this.renderForm()}
             </Modal>
           </Layout>
-        </Layout>
+        </Spin>
       </div>
     );
   }

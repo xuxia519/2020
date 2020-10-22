@@ -23,7 +23,6 @@ import { addTag } from "@actions/tagsView";
 // import SocketComponent from './socket'
 
 class App extends Component {
-  // 初始化页面常量 绑定事件方法
   constructor(props, context) {
     super(props)
     this.state = {
@@ -38,7 +37,6 @@ class App extends Component {
     }
   }
 
-  // 组件已经加载到dom中
   componentDidMount() {
     this.init()
   }
@@ -60,11 +58,9 @@ class App extends Component {
   }
 
   init() {
-    // antd的message组件 的全局配置
     message.config({
       duration: 3,
     })
-    // 初始化左侧菜单是mini模式还是正常模式
     if (sessionStorage.getItem('menuStyle') === 'false') {
       this.setState({
         menuStyle: false,

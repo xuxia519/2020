@@ -531,7 +531,7 @@ class userInfo extends Component {
 
     return (
       <div className="page page-scrollfix page-usermanage">
-        <Layout>
+        <Spin spinning={loading}>
           <Layout className="page-body">
             <Content>
               <div className="page-header">
@@ -597,7 +597,7 @@ class userInfo extends Component {
               {this.renderForm()}
             </Modal>
           </Layout>
-        </Layout>
+        </Spin>
       </div>
     );
   }

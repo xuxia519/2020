@@ -8,8 +8,8 @@ const { CleanWebpackPlugin }  = require('clean-webpack-plugin')
 const os = require('os')
 let selfIp
 try {
-  // selfIp = os.networkInterfaces()['WLAN'][1].address
-  selfIp = '172.16.1.161'
+  selfIp = os.networkInterfaces()['WLAN'][1].address
+  // selfIp = '172.16.1.161'
 } catch (e) {
   selfIp = '172.16.1.161'
 }

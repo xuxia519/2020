@@ -59,15 +59,45 @@ export default class breadcrumb extends Component {
         resKey: '/userInfo',
       },
       {
-        id: 801,
+        id: 806,
+        resName: '移库管理',
+        resKey: '/transferManage',
+      },
+      {
+        id: 802,
         resName: '入库管理',
         resKey: '/inboundManage',
       },
       {
-        id: 802,
+        id: 808,
+        resName: '清洗管理',
+        resKey: '/washManage',
+      },
+      {
+        id: 804,
         resName: '出库管理',
         resKey: '/outboundManage',
-      }
+      },
+      {
+        id: 810,
+        resName: '打包管理',
+        resKey: '/packManage',
+      },
+      {
+        id: 812,
+        resName: '拆包管理',
+        resKey: '/unpackManage',
+      },
+      {
+        id: 814,
+        resName: '库存查询',
+        resKey: '/stockCheck',
+      },
+      {
+        id: 801,
+        resName: '标签管理',
+        resKey: '/labelManage',
+      },
     ]
   }
 

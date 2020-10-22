@@ -253,12 +253,13 @@ class addDtoModal extends Component {
                 </Col>
               </Row>
             </div>
-            <Table 
-            columns={this.columns}
-            dataSource={list}
-            pagination={false}
-          />
-          {this.footer()}
+            <Table
+              bordered
+              columns={this.columns}
+              dataSource={list}
+              pagination={false}
+            />
+            {this.footer()}
           </Form>
           
         </div>

@@ -27,6 +27,12 @@ export default () => (
       {/** *仓库管理 开始 */}
       <Route path={`/inboundManage`} component={warehouseManage.inboundManage} />
       <Route path={`/outboundManage`} component={warehouseManage.outboundManage} />
+      <Route path={`/transferManage`} component={warehouseManage.transferManage} />
+      <Route path={`/washManage`} component={warehouseManage.washManage} />
+      <Route path={`/packManage`} component={warehouseManage.packManage} />
+      <Route path={`/unpackManage`} component={warehouseManage.unpackManage} />
+      <Route path={`/stockCheck`} component={warehouseManage.stockCheck} />
+      <Route path={`/labelManage`} component={warehouseManage.labelManage} />
       {/** *仓库管理 结束 */}
       {/** 基本信息 开始 */}
       <Route path={`/customerInfo`} component={baseInfo.customerInfo} />
