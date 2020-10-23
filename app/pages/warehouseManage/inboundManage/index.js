@@ -6,6 +6,7 @@ import '@styles/set.less'
 import { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord } from '@actions/pavo'
 import AddModal from './modal/addModal';
 import moment from 'moment';
+import { transferManage } from '..';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -20,7 +21,8 @@ class inboundManage extends Component {
       visible: false,
       warehouseList: [],
       options: [],
-      loading: false
+      loading: false,
+      showDetail: false
     };
   }
 
@@ -38,7 +40,7 @@ class inboundManage extends Component {
         width: '15%',
         render: (text, record) => {
           return (
-            <a>{text}</a>
+            <a onClick={(record)=>this.handleDetail(record)}>{text}</a>
           )
         }
       },
@@ -107,7 +109,7 @@ class inboundManage extends Component {
 
   componentDidMount() {
     this.setState({
-      loading: false
+      loading: true
     })
     this.getData();
     this.fetchWarehousesAlls();
@@ -123,7 +125,7 @@ class inboundManage extends Component {
   }
 
   fetchWarehousesAlls = () => {
-    this.props.fetchWarehousesAlls({isNullInbound: 'false'}).then(res=>{
+    this.props.fetchWarehousesAlls().then(res=>{
       this.setState({
         warehouseList: res.data,
         loading: false
@@ -169,6 +171,7 @@ class inboundManage extends Component {
   onCancel = () => {
     this.setState({
       visible: false,
+      showDetail: false
     })
   }
 
@@ -214,9 +217,15 @@ class inboundManage extends Component {
     })
   }
 
+  handleDetail = () => {
+    this.setState({
+      showDetail: true
+    })
+  }
+
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { list, warehouseList, options, loading } = this.state;
+    const { list, warehouseList, options, loading, showDetail } = this.state;
     const formItemLayout = {
       labelCol: { span: 9 },
       wrapperCol: { span: 15 },
@@ -325,6 +334,22 @@ class inboundManage extends Component {
               options={options}
               warehouseList={warehouseList}
             />
+            <Modal 
+              visible={showDetail}
+              width={800}
+              title="详情"
+              onCancel={this.onCancel}
+              footer={null}
+            >
+              <div>
+                <div>
+                  code
+                </div>
+                <div>
+                inboundNumDevices
+                </div>
+              </div>
+            </Modal>
           </Layout>
         </Spin>
       </div>

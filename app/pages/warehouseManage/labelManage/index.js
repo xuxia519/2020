@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Layout, message, Row, Select, Form, Col, Input, Table, DatePicker, Modal, AutoComplete, Slider, Spin } from 'antd';
 
-import '@styles/set.less'
-import { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord } from '@actions/pavo'
+import '@styles/set.less';
+import { fetchWarehousesAlls, fetchCodeDevice } from '@actions/pavo';
+import { fetchUsers } from '@actions/baseInfo';
 import AddModal from './modal/addModal';
 import moment from 'moment';
-import { findAllInRenderedTree } from 'react-addons-test-utils';
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -20,7 +20,8 @@ class labelManage extends Component {
       list: [],
       visible: false,
       warehouseList: [],
-      options: []
+      options: [],
+      users: []
     };
   }
 
@@ -33,52 +34,59 @@ class labelManage extends Component {
       },
       {
         title: '节点',
-        dataIndex: 'code',
-        key: 'code',
+        dataIndex: 'warehouseArea',
+        key: 'warehouseArea',
+        render: (text, record) => {
+          return (
+            <span>{record.warehouseArea.name}</span>
+          )
+        }
       },
       
       {
         title: '工号',
-        key: 'name',
+        dataIndex: 'operatorCode',
+        key: 'operatorCode',
       },
       {
         title: '编号',
-        key: 'wcode',
+        dataIndex: 'code',
+        key: 'code',
       },
       {
         title: '打印人',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'operator',
+        key: 'operator',
       },
       {
         title: '打印时间',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'printTime',
+        key: 'printTime',
       },
       {
         title: '质量标记',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'qualityLabel',
+        key: 'qualityLabel',
       },
       {
         title: '检验',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'test',
+        key: 'test',
       },
       {
         title: '状态',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'status',
+        key: 'status',
       },
       {
         title: '备注',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'remark',
+        key: 'remark',
       },
       {
         title: '操作',
-        dataIndex: 'createTime',
-        key: 'createTime',
+        dataIndex: 'operator',
+        key: 'operator',
       },
     ];
     return configArr;
@@ -87,10 +95,11 @@ class labelManage extends Component {
   componentDidMount() {
     this.getData();
     this.fetchWarehousesAlls();
+    this.getAllUser();
   }
 
   getData = () => {
-    this.props.fetchInboundRecord({pageNumber:'0', pageSize: '10'}).then(res=>{
+    this.props.fetchCodeDevice({pageNumber:'0', pageSize: '10'}).then(res=>{
       this.setState({
         list: res.data.content,
         loading: false
@@ -99,10 +108,18 @@ class labelManage extends Component {
   }
 
   fetchWarehousesAlls = () => {
-    this.props.fetchWarehousesAlls({isNullInbound: 'false'}).then(res=>{
+    this.props.fetchWarehousesAlls().then(res=>{
       this.setState({
         warehouseList: res.data,
         loading: false
+      })
+    })
+  }
+
+  getAllUser = () => {
+    this.props.fetchUsers().then(res=>{
+      this.setState({
+        users: res.data
       })
     })
   }
@@ -114,19 +131,7 @@ class labelManage extends Component {
     })
     this.props.form.validateFields((err, values) => {
       if (!err) {
-        console.log(values.date.length)
-        const startTime = moment(values.date[0]).format('YYYY-MM-DD HH:mm:ss');
-        const endTime = moment(values.date[1]).format('YYYY-MM-DD HH:mm:ss');
-        const params = values;
-        if (values.date.length > 0) {
-          params.startTime = startTime;
-          params.endTime = endTime;
-        } else {
-          params.startTime = '';
-          params.endTime = '';
-        }
-        delete values.date;
-        this.props.fetchInboundRecord({...params, pageNumber:'0', pageSize: '10'}).then(res=>{
+        this.props.fetchCodeDevice({...values, pageNumber:'0', pageSize: '10'}).then(res=>{
           this.setState({
             list: res.data.content,
             loading: false
@@ -192,10 +197,10 @@ class labelManage extends Component {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { list, warehouseList, options, loading } = this.state;
+    const { list, warehouseList, options, loading, users } = this.state;
     const formItemLayout = {
-      labelCol: { span: 9 },
-      wrapperCol: { span: 15 },
+      labelCol: { span: 4 },
+      wrapperCol: { span: 16 },
     };
     const children = options.map(item=><Option key={item.id}>111</Option>)
     return (
@@ -207,55 +212,34 @@ class labelManage extends Component {
                 <div className="layout-between">
                   <Form style={{ width: '100%' }} onSubmit={this.handleSearch}>
                     <Row>
-                      <Col span={8}>
-                        <FormItem label="节点" {...formItemLayout}>
-                          {getFieldDecorator('type', {
-                              rules: [
-                                {
-                                  required: false,
-                                  message: "请选择",
-                                },
-                              ],
-                            })(
-                              <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">返箱入库</Option>
-                                <Option key="OTHER" value="OTHER">其他入库</Option>
-                              </Select>
-                            )}
-                        </FormItem>
-                      </Col>
-                      <Col span={8}>
-                        <FormItem label="工号" {...formItemLayout}>
-                          {getFieldDecorator('status', {
+                    <Col span={8}>
+                        <FormItem label="编号" {...formItemLayout}>
+                          {getFieldDecorator('code', {
                             rules: [
                               {
                                 required: false,
                                 message: "请输入",
                               },
                             ],
-                            initialValue: "",
                             })(
-                              <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">待入库</Option>
-                                <Option key="OTHER" value="OTHER">已入库</Option>
-                              </Select>
+                              <Input placeholder="请输入编号" allowClear={true} autoComplete="off"/>
                             )}
                         </FormItem>
                       </Col>
                       <Col span={8}>
-                        <FormItem label="编号" {...formItemLayout}>
-                          {getFieldDecorator('warehouseAreaIds', {
+                        <FormItem label="工号" {...formItemLayout}>
+                          {getFieldDecorator('operatorCode', {
                             rules: [
                               {
                                 required: false,
-                                message: "请选择",
+                                message: "请输入",
                               },
                             ],
                             })(
                               <Select allowClear={true} placeholder="请选择">
                                 {
-                                  warehouseList.map(item=>{
-                                    return <Option key={item.id}>{item.name}</Option>
+                                  users.map(item=>{
+                                    return <Option key={item.id}>{item.code}</Option>
                                   })
                                 }
                               </Select>
@@ -283,6 +267,7 @@ class labelManage extends Component {
               onCancel={this.onCancel}
               options={options}
               warehouseList={warehouseList}
+              users={users}
             />
           </Layout>
         </Spin>
@@ -290,4 +275,4 @@ class labelManage extends Component {
     )
   }
 }
-export default connect((state) => state.warehouseManage, { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord })(labelManage)
+export default connect((state) => state.warehouseManage, { fetchWarehousesAlls, fetchCodeDevice, fetchUsers })(labelManage)

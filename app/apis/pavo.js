@@ -166,3 +166,60 @@ export function addOutboundRecords(data) {
     data
   })
 }
+// 标签
+export function fetchCodeDevices(data) {
+  return request({
+    url: `/pavo/code-devices/page`,
+    method: 'get',
+    params: {...data}
+  })
+}
+export function getCode(data) {
+  return request({
+    url: `/pavo/code-devices/${data.warehouseAreaCode}/${data.userCode}/${data.printNumber}/code`,
+    method: 'get'
+  })
+}
+//批量添加便签
+export function addCodeDevices(data) {
+  return request({
+    url: `/pavo/code-devices/bach`,
+    method: 'post',
+    data
+  })
+}
+// 清洗
+// 查询
+export function fetchWashRecords(data) {
+  return request({
+    url: `/pavo/wash-records/page`,
+    method: 'get',
+    params: {...data}
+  })
+}
+// add
+export function addWashRecords(data) {
+  return request({
+    url: `/pavo/wash-records`,
+    method: 'post',
+    data
+  })
+}
+// pack
+// search
+export function fetchPackRecords(data) {
+  return request({
+    url: `/pavo/pack-records/page`,
+    method: 'get',
+    params: {...data}
+  })
+}
+//unpack
+// search
+export function fetchUnPackRecords(data) {
+  return request({
+    url: `/pavo/unpack-records/page`,
+    method: 'get',
+    params: {...data}
+  })
+}

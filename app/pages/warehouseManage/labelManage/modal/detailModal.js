@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Form, Input, message, Select, Modal, Row, Col, Table } from 'antd';
-import { addInboundRecord, getCodes, addCodeDevice } from '@actions/pavo';
+import { addInboundRecord } from '@actions/pavo';
 
 
 const FormItem = Form.Item
@@ -20,10 +20,7 @@ class addModal extends Component {
       areas: [],
       number: '',
       list: [],
-      warehouseId: '',
-      userCode: '',
-      warehouseAreas: [],
-      code:''
+      warehouseId: ''
     }
 
     this.columns = [
@@ -62,10 +59,6 @@ class addModal extends Component {
 
   componentDidMount() {
     this.props.form.resetFields()
-    const userinfo = JSON.parse(sessionStorage.getItem('userinfo'));
-    this.setState({
-      userCode: userinfo.userCode
-    })
   }
 
   handleSubmit(e) {
@@ -75,14 +68,14 @@ class addModal extends Component {
         return;
       }
       console.log(values)
-      const { list } = this.state;
-      const { code, printNumber, remark, operator, warehouseAreaCode } = values;
+      const { list, warehouseId } = this.state;
+      const { code, type, remark, operator } = values;
       const params = {
-        codes: code, num: printNumber, remark, operator,
-        warehouseAreaId: warehouseAreaCode,
-        codeNumberDevices: list
+        code, type, remark, operator,
+        warehouseAreaId: warehouseId,
+        numberDevices: list
       }
-      this.props.addCodeDevice({...params}).then(res=>{
+      this.props.addInboundRecord({...params}).then(res=>{
         if (res.status == '201') {
           message.success('新增成功');
           this.setState({
@@ -100,13 +93,12 @@ class addModal extends Component {
 
   handleAdd = () => {
     console.log(this.props.form.getFieldsValue())
-    const { deviceId, name, number } = this.props.form.getFieldsValue()
+    const { deviceId, number } = this.props.form.getFieldsValue()
     this.setState({
-      list: [...this.state.list,{deviceId, name, number}]
+      list: [...this.state.list,{deviceId, number}]
     }, () => {
       this.props.form.setFieldsValue({
         deviceId: '',
-        name: '',
         number: ''
       })
     })
@@ -131,34 +123,24 @@ class addModal extends Component {
   }
 
   changeWarehouse = (value) => {
+    console.log(value)
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth() + 1;
+    const date = new Date().getDate();
+    const hour = new Date().getHours();
+    const m = new Date().getMinutes();
+    const s = new Date().getSeconds();
     const { warehouseList } = this.props;
     const warehouse = warehouseList.filter(item=>{
       return item.id == value
     })
-    this.setState({
-      warehouseAreas: warehouse[0].warehouseAreas
+    console.log(warehouse.inboundWarehouseArea,warehouseList)
+    this.props.form.setFieldsValue({
+      code: `RT${value}${year}${month}${date}${hour}${m}${s}`
     })
-  }
-  handleBlur = () => {
-    const values = this.props.form.getFieldsValue();
-    console.log(values)
-    const { userCode, warehouse, warehouseAreaCode, printNumber } = values;
-    const params = {
-      userCode, warehouseAreaCode, printNumber
-    }
-    if (warehouse == '') {
-      message.error('请选择节点');
-      return
-    } else if (warehouseAreaCode == '') {
-      message.error('请选择库位');
-      return
-    } else {
-      this.props.getCodes(params).then(res=>{
-        this.setState({
-          code: res.data
-        })
-      })
-    }
+    this.setState({
+      warehouseId: warehouse[0].inboundWarehouseArea.id
+    })
   }
 
   footer() {
@@ -171,16 +153,13 @@ class addModal extends Component {
   }
 
   render() {
-    const { visible, onCancel, warehouseList } = this.props;
-    const { list, userCode, warehouseAreas, code } = this.state;
+    const { visible, onCancel, record = {}, warehouseList } = this.props;
+    const { list } = this.state;
+    const { code, name, type, remark, operator } = record;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 9 },
       wrapperCol: { span: 15 },
-    };
-    const formItemLayout1 = {
-      labelCol: { span: 5 },
-      wrapperCol: { span: 18 },
     };
     return (
       <Modal
@@ -193,10 +172,21 @@ class addModal extends Component {
         <div className="modalcontent">
           <Form onSubmit={this.handleSubmit} onValuesChange={this.onValuesChange}>
             <Row>
-              <Col span={6}>
-                <FormItem label="工号" name="userCode" {...formItemLayout}>
-                  {getFieldDecorator('userCode', {
-                    initialValue: userCode,
+              <Col span={8}>
+                <FormItem {...formItemLayout} name="type" label="节点">
+                  {getFieldDecorator('type', {
+                    initialValue: "OTHER",
+                    rules: [{ required: true, message: '请输入' }],
+                  })(
+                    <Select allowClear={true} placeholder="请选择">
+                      <Option key="OTHER" value="OTHER">其他入库</Option>
+                    </Select>
+                  )}
+                </FormItem>
+              </Col>
+              <Col span={8}>
+                <FormItem label="工号" name="warehouseAreaId" {...formItemLayout}>
+                  {getFieldDecorator('warehouseAreaId', {
                     rules: [
                       {
                         required: true,
@@ -204,61 +194,23 @@ class addModal extends Component {
                       },
                     ],
                     })(
-                      <Input />
+                      <Select allowClear={true} placeholder="请选择" onChange={this.changeWarehouse}>
+                        {
+                          warehouseList.map(item=>{
+                            return <Option key={item.id}>{item.name}</Option>
+                          })
+                        }
+                      </Select>
                     )}
                 </FormItem>
               </Col>
-              <Col span={6}>
-                <FormItem {...formItemLayout} name="warehouse" label="节点">
-                  {getFieldDecorator('warehouse', {
-                    initialValue: "",
-                    rules: [{ required: true, message: '请选择' }],
-                  })(
-                    <Select allowClear={true} placeholder="请选择" onChange={this.changeWarehouse}>
-                      {
-                        warehouseList.map(item=>{
-                          return <Option key={item.id}>{item.name}</Option>
-                        })
-                      }
-                    </Select>
-                  )}
-                </FormItem>
-              </Col>
-              <Col span={6}>
-                <FormItem {...formItemLayout} name="warehouseAreaCode" label="库位">
-                  {getFieldDecorator('warehouseAreaCode', {
-                    initialValue: "",
-                    rules: [{ required: true, message: '请选择' }],
-                  })(
-                    <Select allowClear={true} placeholder="请选择">
-                      {
-                        warehouseAreas.map(item=>{
-                          return <Option key={item.code}>{item.code}-{item.name}</Option>
-                        })
-                      }
-                    </Select>
-                  )}
-                </FormItem>
-              </Col>
-            </Row>
-            <Row>
-              <Col span={6}>
-                <FormItem {...formItemLayout} name="printNumber" label="数量">
-                  {getFieldDecorator('printNumber', {
-                    initialValue: "",
-                    rules: [{ required: true, message: '请输入' }],
-                  })(
-                    <Input onBlur={this.handleBlur} />
-                  )}
-                </FormItem>
-              </Col>
-              <Col span={12}>
-                <FormItem {...formItemLayout1} name="code" label="编号">
+              <Col span={8}>
+                <FormItem {...formItemLayout} name="code" label="编号">
                   {getFieldDecorator('code', {
                     initialValue: code,
                     rules: [{ required: false, message: '请输入' }],
                   })(
-                    <TextArea style={{ width: '300px', minHeight: '50px'}} />
+                    <Input disabled />
                   )}
                 </FormItem>
               </Col>
@@ -275,7 +227,7 @@ class addModal extends Component {
                 </FormItem>
               </Col>
               <Col span={7}>
-                <FormItem {...formItemLayout} name="name" label="物料名称">
+                <FormItem {...formItemLayout} name="deviceId" label="物料名称">
                   {getFieldDecorator('name', {
                     rules: [{ required: false, message: '请输入' }],
                     initialValue: '',
@@ -292,7 +244,7 @@ class addModal extends Component {
                   })(<Input placeholder="请输入" onChange={(e)=>this.changeNumber(e)} />)}
                 </FormItem>
               </Col>
-              <Col span={3} style={{ textAlign: 'center'}}>
+              <Col span={5} style={{ textAlign: 'center'}}>
                 <Button type="primary" onClick={this.handleAdd}>添加</Button>
               </Col>
             </Row>
@@ -308,4 +260,4 @@ class addModal extends Component {
     )
   }
 }
-export default connect((state) => state.warehouse, { addInboundRecord, getCodes, addCodeDevice })(addModal)
+export default connect((state) => state.warehouse, { addInboundRecord })(addModal)

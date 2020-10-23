@@ -103,6 +103,9 @@ class outboundManage extends Component {
   componentDidMount() {
     this.getData();
     this.fetchWarehousesAlls();
+    this.setState({
+      loading: true
+    })
   }
 
   getData = () => {

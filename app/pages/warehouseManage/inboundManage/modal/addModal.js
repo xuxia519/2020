@@ -2,7 +2,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button, Form, Input, message, Select, Modal, Row, Col, Table } from 'antd';
-import { addInboundRecord } from '@actions/pavo';
+import { addInboundRecord, fetchWarehousesAlls } from '@actions/pavo';
 
 
 const FormItem = Form.Item
@@ -20,7 +20,8 @@ class addModal extends Component {
       areas: [],
       number: '',
       list: [],
-      warehouseId: ''
+      warehouseId: '',
+      warehouseList: []
     }
 
     this.columns = [
@@ -48,11 +49,12 @@ class addModal extends Component {
       }
     ]
    
-    this.handleSubmit = this.handleSubmit.bind(this)
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   componentDidMount() {
-    this.props.form.resetFields()
+    this.props.form.resetFields();
+    this.fetchWarehousesAlls();
   }
 
   handleSubmit(e) {
@@ -85,9 +87,17 @@ class addModal extends Component {
     })
   }
 
+  fetchWarehousesAlls = () => {
+    this.props.fetchWarehousesAlls({isNullInbound: 'false'}).then(res=>{
+      this.setState({
+        warehouseList: res.data,
+        loading: false
+      })
+    })
+  }
+
   handleAdd = () => {
-    console.log(this.props.form.getFieldsValue())
-    const { deviceId, number } = this.props.form.getFieldsValue()
+    const { deviceId, number } = this.props.form.getFieldsValue();
     this.setState({
       list: [...this.state.list,{deviceId, number}]
     }, () => {
@@ -106,7 +116,6 @@ class addModal extends Component {
   }
 
   onValuesChange = (props, changedValues, allValues) => {
-    console.log(111)
     console.log(changedValues, allValues)
   }
 
@@ -147,9 +156,9 @@ class addModal extends Component {
   }
 
   render() {
-    const { visible, onCancel, record = {}, warehouseList } = this.props;
-    const { list } = this.state;
-    const { code, name, type, remark, operator } = record;
+    const { visible, onCancel, record = {} } = this.props;
+    const { list, warehouseList } = this.state;
+    const { code, remark, operator } = record;
     const { getFieldDecorator } = this.props.form;
     const formItemLayout = {
       labelCol: { span: 9 },
@@ -266,4 +275,4 @@ class addModal extends Component {
     )
   }
 }
-export default connect((state) => state.warehouse, { addInboundRecord })(addModal)
+export default connect((state) => state.warehouse, { addInboundRecord, fetchWarehousesAlls })(addModal)

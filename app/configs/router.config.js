@@ -33,6 +33,7 @@ export default () => (
       <Route path={`/unpackManage`} component={warehouseManage.unpackManage} />
       <Route path={`/stockCheck`} component={warehouseManage.stockCheck} />
       <Route path={`/labelManage`} component={warehouseManage.labelManage} />
+      <Route path={`/aa`} component={warehouseManage.aa} />
       {/** *仓库管理 结束 */}
       {/** 基本信息 开始 */}
       <Route path={`/customerInfo`} component={baseInfo.customerInfo} />

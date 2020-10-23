@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button, Layout, message, Row, Select, Form, Col, Input, Table, DatePicker, Modal, AutoComplete, Slider } from 'antd';
 
 import '@styles/set.less'
-import { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord } from '@actions/pavo'
+import { fetchWashRecord, fetchWarehousesAlls, fetchDevicesByCodes } from '@actions/pavo'
 import AddModal from './modal/addModal';
 import moment from 'moment';
 const { Option } = Select;
@@ -16,10 +16,12 @@ class washManage extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      loading: false,
       list: [],
       visible: false,
       warehouseList: [],
-      options: []
+      options: [],
+      warehouseAreas : []
     };
   }
 
@@ -51,11 +53,6 @@ class washManage extends Component {
         dataIndex: 'type',
         key: 'type',
         width: '15%',
-        render: (record) => {
-          return (
-            <span>{record.type == 'RETURN' ? '反箱入库' : '其他入库'}</span>
-          )
-        }
       },
       {
         title: '料号',
@@ -91,10 +88,13 @@ class washManage extends Component {
   componentDidMount() {
     this.getData();
     this.fetchWarehousesAlls();
+    this.setState({
+      loading: true
+    })
   }
 
   getData = () => {
-    this.props.fetchInboundRecord({pageNumber:'0', pageSize: '10'}).then(res=>{
+    this.props.fetchWashRecord({pageNumber:'0', pageSize: '10'}).then(res=>{
       this.setState({
         list: res.data.content,
         loading: false
@@ -103,7 +103,7 @@ class washManage extends Component {
   }
 
   fetchWarehousesAlls = () => {
-    this.props.fetchWarehousesAlls({isNullInbound: 'false'}).then(res=>{
+    this.props.fetchWarehousesAlls().then(res=>{
       this.setState({
         warehouseList: res.data
       })
@@ -129,7 +129,7 @@ class washManage extends Component {
           params.endTime = '';
         }
         delete values.date;
-        this.props.fetchInboundRecord({...params, pageNumber:'0', pageSize: '10'}).then(res=>{
+        this.props.fetchWashRecord({...params, pageNumber:'0', pageSize: '10'}).then(res=>{
           this.setState({
             list: res.data.content,
             loading: false
@@ -138,6 +138,16 @@ class washManage extends Component {
       }
     })
   };
+
+  changeWarehouse = (value) => {
+    const { warehouseList } = this.state;
+    const warehouse = warehouseList.filter(item=>{
+      return item.id == value
+    })
+    this.setState({
+      warehouseAreas: warehouse[0].warehouseAreas
+    })
+  }
 
   handleAdd = () => {
     this.setState({
@@ -195,12 +205,12 @@ class washManage extends Component {
 
   render() {
     const { getFieldDecorator } = this.props.form;
-    const { list, warehouseList, options } = this.state;
+    const { list, warehouseList, options, warehouseAreas } = this.state;
     const formItemLayout = {
       labelCol: { span: 9 },
       wrapperCol: { span: 15 },
     };
-    const children = options.map(item=><Option key={item.id}>111</Option>)
+    const children = options.map(item=><Option key={item.id}>{item.code}</Option>)
     return (
       <div className="page page-scrollfix page-usermanage">
         <Layout>
@@ -221,8 +231,11 @@ class washManage extends Component {
                               ],
                             })(
                               <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">返箱入库</Option>
-                                <Option key="OTHER" value="OTHER">其他入库</Option>
+                                {
+                                  warehouseList.map(item=>{
+                                    return <Option key={item.id}>{item.name}</Option>
+                                  })
+                                }
                               </Select>
                             )}
                         </FormItem>
@@ -238,31 +251,52 @@ class washManage extends Component {
                             ],
                             initialValue: "",
                             })(
-                              <Select allowClear={true} placeholder="请选择">
-                                <Option key="RETURN" value="RETURN">待入库</Option>
-                                <Option key="OTHER" value="OTHER">已入库</Option>
-                              </Select>
+                              <AutoComplete
+                                allowClear={true}
+                                style={{
+                                  width: 160,
+                                }}
+                                onSelect={this.onSelect}
+                                onSearch={this.onSearch}
+                                placeholder="请输入"
+                              >
+                                {children}
+                              </AutoComplete>
                             )}
                         </FormItem>
                       </Col>
+                    </Row>
+                    <Row>
                       <Col span={8}>
-                        <FormItem label="库位" {...formItemLayout}>
-                          {getFieldDecorator('warehouseAreaIds', {
-                            rules: [
+                        <FormItem {...formItemLayout} name="warehouse" label="节点">
+                          {getFieldDecorator('warehouse', {
+                            initialValue: "",
+                            rules: [{ required: false, message: '请选择' }],
+                          })(
+                            <Select allowClear={true} placeholder="请选择" onChange={this.changeWarehouse}>
                               {
-                                required: false,
-                                message: "请选择",
-                              },
-                            ],
-                            })(
-                              <Select allowClear={true} placeholder="请选择">
-                                {
-                                  warehouseList.map(item=>{
-                                    return <Option key={item.id}>{item.name}</Option>
-                                  })
-                                }
-                              </Select>
-                            )}
+                                warehouseList.map(item=>{
+                                  return <Option key={item.id}>{item.name}</Option>
+                                })
+                              }
+                            </Select>
+                          )}
+                        </FormItem>
+                      </Col>
+                      <Col span={8}>
+                        <FormItem {...formItemLayout} name="warehouseAreaCode" label="库位">
+                          {getFieldDecorator('warehouseAreaCode', {
+                            initialValue: "",
+                            rules: [{ required: false, message: '请选择' }],
+                          })(
+                            <Select allowClear={true} placeholder="请选择">
+                              {
+                                warehouseAreas.map(item=>{
+                                  return <Option key={item.code}>{item.code}-{item.name}</Option>
+                                })
+                              }
+                            </Select>
+                          )}
                         </FormItem>
                       </Col>
                     </Row>
@@ -284,7 +318,7 @@ class washManage extends Component {
                       </Col>
                     </Row>
                     <Row>
-                      <Col span={6}><FormItem><Button size="small" htmlType="submit">查询</Button><Button size="small" type="primary" onClick={this.handleAdd}>新增入库</Button></FormItem></Col>
+                      <Col span={6}><FormItem><Button size="small" htmlType="submit">查询</Button><Button size="small" type="primary" onClick={this.handleAdd}>新增</Button></FormItem></Col>
                     </Row>
                   </Form>
                 </div>
@@ -310,4 +344,4 @@ class washManage extends Component {
     )
   }
 }
-export default connect((state) => state.warehouseManage, { fetchInboundRecord, fetchWarehousesAlls, fetchDevicesByCodes, deleteInboundRecord })(washManage)
+export default connect((state) => state.warehouseManage, { fetchWashRecord, fetchWarehousesAlls, fetchDevicesByCodes })(washManage)

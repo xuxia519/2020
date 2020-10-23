@@ -1,5 +1,5 @@
 import * as types from "../action-types";
-import { fetchWarehouses, fetchWarehousesAll, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices, deleteDevice, fetchBOM, fetchDevicesByCode, addBOM, addWarehouseAreas, fetchWarehouseAreas, fetchInboundRecords, addInboundRecords, deleteInboundRecords, fetchOutboundRecords, addOutboundRecords } from '@apis/pavo';
+import { fetchWarehouses, fetchWarehousesAll, fetchProvince, addWarehouses, deleteWarehouse, fetchDeviceType, addDevices, fetchDevices, editDevices, deleteDevice, fetchBOM, fetchDevicesByCode, addBOM, addWarehouseAreas, fetchWarehouseAreas, fetchInboundRecords, addInboundRecords, deleteInboundRecords, fetchOutboundRecords, addOutboundRecords, fetchCodeDevices, getCode, addCodeDevices, addWashRecords, fetchWashRecords, fetchPackRecords, fetchUnPackRecords } from '@apis/pavo';
 import { resolve, reject } from "core-js/fn/promise";
 
 export const fetchWarehouse = (params) => (dispatch) => {
@@ -223,6 +223,87 @@ export const fetchOutboundRecord = (params) => (dispatch) => {
 export const addOutboundRecord = (params) => (dispatch) => {
   return new Promise((resolve, reject) => {
     addOutboundRecords({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// 标签
+//
+export const fetchCodeDevice = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchCodeDevices({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+//
+export const getCodes = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    getCode(params).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+//
+export const addCodeDevice = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    addCodeDevices({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// qingxi
+// add
+export const addWashRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    addWashRecords({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+//search
+export const fetchWashRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchWashRecords({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// pack
+//search
+export const fetchPackRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchPackRecords({...params}).then((response) => {
+      resolve(response);
+    })
+    .catch((error) => {
+      reject(error);
+    });
+  })
+}
+// unpack
+//search
+export const fetchUnPackRecord = (params) => (dispatch) => {
+  return new Promise((resolve, reject) => {
+    fetchUnPackRecords({...params}).then((response) => {
       resolve(response);
     })
     .catch((error) => {

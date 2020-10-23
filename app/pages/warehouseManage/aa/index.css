@@ -1,0 +1,4 @@
+
+@media print {
+    .cardHtml {page-break-after:always;}
+}

@@ -7,5 +7,6 @@ import transferManage from './transferManage'
 import unpackManage from './unpackManage'
 import stockCheck from './stockCheck'
 import labelManage from './labelManage'
+import aa from './aa'
 
-export { inboundManage, outboundManage, packManage, washManage, transferManage, unpackManage, stockCheck, labelManage }
+export { inboundManage, outboundManage, packManage, washManage, transferManage, unpackManage, stockCheck, labelManage, aa }
